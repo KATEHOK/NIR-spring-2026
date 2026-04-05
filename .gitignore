@@ -1,0 +1,10 @@
+
+app/src/**/__pycache__/
+
+vm/**
+!vm/Vagrantfile
+
+report/**
+!**/*.pdf
+
+.idea/

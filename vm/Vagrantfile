@@ -1,0 +1,32 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "ubuntu/jammy64"
+  config.vm.box_check_update = false
+
+  config.vm.define "ubuntu" do |ubuntu|
+    ubuntu.vm.hostname = "ubuntu"
+    ubuntu.vm.network "forwarded_port", guest: 8000, host: 8000, host_ip: "0.0.0.0"
+    ubuntu.vm.provider "virtualbox" do |vb|
+      vb.name = "vagrant-vm-ubuntu-nir-spring-2026"
+    end
+    ubuntu.vm.synced_folder "C:/Inst/4_course/8_sem_2/NIR/app", "/app"
+  end
+
+  config.vm.provider "virtualbox" do |vb|
+    vb.gui = false
+    vb.cpus = "4"
+    vb.memory = "8192"
+    vb.check_guest_additions=false
+  end
+
+  config.vm.provision "shell", inline: <<-SHELL
+    sudo apt-get update
+    sudo apt-get upgrade -y
+    curl -fsSL https://get.docker.com -o get-docker.sh
+    sudo sh get-docker.sh
+    sudo groupadd docker
+    sudo usermod -aG docker vagrant
+  SHELL
+end
