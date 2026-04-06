@@ -45,9 +45,9 @@ class Settings:
         self.REFRESH_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("REFRESH_TOKEN_EXPIRE_MINUTES", "10080"))
 
     @property
-    def DATABASE_URL(self) -> str:
-        """Строка подключения к PostgreSQL с паролем из секрета."""
-        return f"postgresql://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+    def ASYNC_DATABASE_URL(self) -> str:
+        """Строка асинхронного подключения к PostgreSQL с паролем из секрета."""
+        return f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
 
 
 settings = Settings()

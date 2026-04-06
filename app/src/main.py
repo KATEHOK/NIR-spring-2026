@@ -1,16 +1,14 @@
 import uvicorn
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from src.config import settings
+from src.router import auth_router
 
 
 app = FastAPI(title="Auth Server")
+app.add_middleware(CORSMiddleware, settings.SERVER_CORS)
+app.include_router(auth_router)
 
-@app.get("/health")
-def health():
-    return {"status": "ok"}
-
-# Код с эндпоинтами регистрации, логина, ...
-# Для доступа к настройкам: settings.DB_PASSWORD, settings.SECRET_KEY, ...
 
 if __name__ == "__main__":
     uvicorn.run(
