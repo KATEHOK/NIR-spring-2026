@@ -1,4 +1,6 @@
 
+app/.secrets/*.pem
+
 app/src/**/__pycache__/
 
 vm/**

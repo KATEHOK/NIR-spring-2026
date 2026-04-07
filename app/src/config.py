@@ -24,25 +24,27 @@ class Settings:
         # self.SECRET_KEY: str = "secret"
 
         # База данных (несекретные параметры)
-        self.DB_HOST: str = os.getenv("DB_HOST", "db")
-        self.DB_PORT: int = int(os.getenv("DB_PORT", "5432"))
-        self.DB_USER: str = os.getenv("DB_USER", "auth_user")
-        self.DB_NAME: str = os.getenv("DB_NAME", "auth_db")
+        self.DB_HOST: str = os.getenv("DB_HOST")
+        self.DB_PORT: int = int(os.getenv("DB_PORT"))
+        self.DB_USER: str = os.getenv("DB_USER")
+        self.DB_NAME: str = os.getenv("DB_NAME")
 
         # Сервер
-        self.SERVER_PORT: int = int(os.getenv("SERVER_PORT", "8000"))
-        self.SERVER_IP: str = os.getenv("SERVER_IP", "0.0.0.0")
-        cors_str: str = os.getenv("SERVER_CORS", "")
+        self.SERVER_PORT: int = int(os.getenv("SERVER_PORT"))
+        self.SERVER_IP: str = os.getenv("SERVER_IP")
+        cors_str: str = os.getenv("SERVER_CORS")
         self.SERVER_CORS: list[str] = [origin.strip() for origin in cors_str.split(",") if origin.strip()]
 
         # Fault limiting (ограничение количества ошибок)
-        self.FAULT_LIMIT: int = int(os.getenv("FAULT_LIMIT", "3"))
-        self.FAULT_LIMIT_UPDATE_PERIOD: int = int(os.getenv("FAULT_LIMIT_UPDATE_PERIOD", "60"))  # секунды
+        self.FAULT_LIMIT: int = int(os.getenv("FAULT_LIMIT"))
+        self.FAULT_LIMIT_UPDATE_PERIOD: int = int(os.getenv("FAULT_LIMIT_UPDATE_PERIOD"))   # секунды
 
         # JWT
-        self.ALGORITHM: str = os.getenv("ALGORITHM", "HS256")
-        self.ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
-        self.REFRESH_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("REFRESH_TOKEN_EXPIRE_MINUTES", "10080"))
+        self.JWT_ALGORITHM: str = os.getenv("JWT_ALGORITHM")
+        self.JWT_PUBLIC_KEY: str = read_secret("JWT_PUBLIC_KEY_FILE")
+        self.JWT_PRIVATE_KEY: str = read_secret("JWT_PRIVATE_KEY_FILE")
+        self.ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
+        self.REFRESH_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("REFRESH_TOKEN_EXPIRE_MINUTES"))
 
     @property
     def ASYNC_DATABASE_URL(self) -> str:
