@@ -8,6 +8,7 @@ Vagrant.configure("2") do |config|
   config.vm.define "ubuntu" do |ubuntu|
     ubuntu.vm.hostname = "ubuntu"
     ubuntu.vm.network "forwarded_port", guest: 8000, host: 8000, host_ip: "0.0.0.0"
+    ubuntu.vm.network "forwarded_port", guest: 5432, host: 5432 # todo УДАЛИТЬ на проде!
     ubuntu.vm.provider "virtualbox" do |vb|
       vb.name = "vagrant-vm-ubuntu-nir-spring-2026"
     end

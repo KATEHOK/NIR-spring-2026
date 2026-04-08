@@ -9,6 +9,8 @@ services:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_DB: ${DB_NAME}
       POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+    ports:
+      - "${DB_PORT}:${DB_PORT}" # todo УДАЛИТЬ на проде
     secrets:
       - db_password
     volumes:

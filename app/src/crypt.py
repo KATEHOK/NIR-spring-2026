@@ -6,7 +6,8 @@ import bcrypt
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 from cryptography.hazmat.primitives import hashes
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta
+from src.utils import datetime_utcnow
 from src.config import settings
 
 
@@ -52,12 +53,12 @@ class JWT:
     @classmethod
     def issue_access_token(cls, user_id: int, refresh_token_id: int) -> str:
         """Выпускает Access-токен"""
-        now = datetime.now(timezone.utc)
+        now_aware = datetime_utcnow(False)
         payload = {
             "sub": str(user_id),
             "refresh_id": str(refresh_token_id),
-            "iat": int(now.timestamp()),
-            "exp": int((now + timedelta(minutes=cls.access_token_expire_minutes)).timestamp()),
+            "iat": int(now_aware.timestamp()),
+            "exp": int((now_aware + timedelta(minutes=cls.access_token_expire_minutes)).timestamp()),
             "type": "access"
         }
         return cls.encode(payload)
@@ -65,9 +66,9 @@ class JWT:
     @classmethod
     def issue_refresh_token(cls, fast: bool = False) -> tuple[str, datetime]:
         """Выпускает Refresh-токен (коротко или долгоживущий, вернет (token, exp))"""
-        now = datetime.now(timezone.utc)
+        now_naive = datetime_utcnow()
         token_expire_minutes = cls.fast_refresh_token_expire_minutes if fast else cls.refresh_token_expire_minutes
-        return Random.urlsafe(32), now + timedelta(minutes=token_expire_minutes)
+        return Random.urlsafe(32), now_naive + timedelta(minutes=token_expire_minutes)
 
 
 class SymmetricEncryption:

@@ -1,9 +1,9 @@
-from datetime import datetime, timezone
 from fastapi import HTTPException, status
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.config import settings
 from src.crypt import Password, JWT, SymmetricEncryption, Random
+from src.utils import datetime_utcnow
 from src.repository import AsyncAuthRepo
 from src.schemas import RefreshSchema, RegisterSchemas, LoginSchemas
 from src.models import RefreshTokenModel
@@ -39,7 +39,7 @@ class RegisterService:
         key = key_part + ":" + pin_code
         key_cipher = SymmetricEncryption.encrypt(key.encode('utf-8'))
         user = await AsyncAuthRepo.add_user(hashed_password, key_cipher, session)
-        new_token = await TokenService.set_refresh_token(user.id, False, session)
+        new_token = await TokenService.set_refresh_token(user.id, False, True, session)
         await session.commit()
         return RegisterSchemas.Init.Resp(refresh_token=new_token.token, key_part=key_part)
 
@@ -56,7 +56,7 @@ class RegisterService:
         if user.is_active:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User already exist")
         user.is_active = True
-        new_token = await TokenService.set_refresh_token(user.id, True, session)
+        new_token = await TokenService.set_refresh_token(user.id, True, False, session)
         await session.commit()
         return RegisterSchemas.Accept.Resp(
             refresh_token=new_token.token,
@@ -78,9 +78,9 @@ class TokenService:
     """Бизнес-логика работы с токенами"""
 
     @staticmethod
-    async def set_refresh_token(user_id: int, accepted: bool, session: AsyncSession) -> RefreshTokenModel:
+    async def set_refresh_token(user_id: int, accepted: bool, fast: bool, session: AsyncSession) -> RefreshTokenModel:
         """Выпускает и добавляет в БД новый refresh-токен, обрабатывая нарушение уникальности (не выполняет коммит)"""
-        refresh_token, refresh_token_exp = JWT.issue_refresh_token()
+        refresh_token, refresh_token_exp = JWT.issue_refresh_token(fast)
         try:
             new_token = await AsyncAuthRepo.add_refresh_token(
                 user_id,
@@ -99,7 +99,7 @@ class TokenService:
         token = await AsyncAuthRepo.select_refresh_token(refresh_token, session)
         if token is None:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
-        if token.expires_at <= datetime.now(timezone.utc):
+        if token.expires_at <= datetime_utcnow():
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token expired")
         if token.revoked:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token revoked")
