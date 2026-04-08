@@ -27,7 +27,7 @@ class UserModel(Base):
     id: Mapped[intpk]
     password: Mapped[bytes] = mapped_column(nullable=False)             # хэшируем на секретном ключе приложения
 
-    otp_request: Mapped[bytes | None] = mapped_column(nullable=True)    # шифруем секретным ключом приложения
+    challenge: Mapped[bytes | None] = mapped_column(nullable=True)      # шифруем секретным ключом приложения
     key: Mapped[bytes] = mapped_column(nullable=False)                  # шифруем секретным ключом приложения
 
     login_count: Mapped[int] = mapped_column(default=0, nullable=False)
@@ -43,7 +43,7 @@ class RefreshTokenModel(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey(UserModel.id, ondelete="CASCADE"), nullable=False, index=True)
 
     token: Mapped[str] = mapped_column(unique=True, nullable=False)
-    is_accepted: Mapped[bool] = mapped_column(default=False, nullable=False)
+    accepted: Mapped[bool] = mapped_column(default=False, nullable=False)
 
     revoked: Mapped[bool] = mapped_column(default=False, nullable=False)
     expires_at: Mapped[datetime] = mapped_column(nullable=False)

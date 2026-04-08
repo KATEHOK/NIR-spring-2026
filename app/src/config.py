@@ -45,6 +45,7 @@ class Settings:
         self.JWT_PRIVATE_KEY: str = read_secret("JWT_PRIVATE_KEY_FILE")
         self.ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
         self.REFRESH_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("REFRESH_TOKEN_EXPIRE_MINUTES"))
+        self.FAST_REFRESH_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("FAST_REFRESH_TOKEN_EXPIRE_MINUTES"))
 
     @property
     def ASYNC_DATABASE_URL(self) -> str:
