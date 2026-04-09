@@ -60,3 +60,36 @@ class AsyncAuthRepo:
         await session.flush([refresh_token])
         return refresh_token
 
+    @staticmethod
+    async def increment_user_faults(
+            user_id: int,
+            last_fault_at: datetime,
+            challenge: bytes,
+            session: AsyncSession
+    ) -> None:
+        """Инкрементирует счетчик ошибок и обновляет параметры последней ошибки при входе пользователя"""
+        await session.execute(
+            update(UserModel)
+            .where(UserModel.id == user_id)
+            .values(
+                failed_login_count=UserModel.failed_login_count + 1,
+                last_fault_at=last_fault_at,
+                challenge=challenge
+            )
+        )
+        return None
+
+    @staticmethod
+    async def update_user_successful_logged_in(user_id: int, session: AsyncSession) -> None:
+        """Инкрементирует счетчик успеха, сбрасывает challenge и счетчик неудач при успешном входе пользователя"""
+        await session.execute(
+            update(UserModel)
+            .where(UserModel.id == user_id)
+            .values(
+                login_count=UserModel.login_count + 1,
+                failed_login_count=0,
+                challenge=None
+            )
+        )
+        return None
+

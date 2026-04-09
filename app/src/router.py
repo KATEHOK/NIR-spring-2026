@@ -27,7 +27,7 @@ async def get_public_key():
 
 
 @auth_router.get("/validate-access-token", status_code=status.HTTP_200_OK, summary="Validate access-token")
-async def get_user_id(user_id: int = Depends(get_user_id_from_access_token_header)):
+async def validate_access_token(user_id: int = Depends(get_user_id_from_access_token_header)):
     """Проверка корректности access-токена"""
     return {"valid": True, "user_id": user_id}
 

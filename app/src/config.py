@@ -36,8 +36,9 @@ class Settings:
         self.SERVER_CORS: list[str] = [origin.strip() for origin in cors_str.split(",") if origin.strip()]
 
         # Fault limiting (ограничение количества ошибок)
+        self.BAN_PERIOD: int = int(os.getenv("BAN_PERIOD"))
         self.FAULT_LIMIT: int = int(os.getenv("FAULT_LIMIT"))
-        self.FAULT_LIMIT_UPDATE_PERIOD: int = int(os.getenv("FAULT_LIMIT_UPDATE_PERIOD"))   # секунды
+        self.FAULT_LIMIT_UPDATE_PERIOD: int = int(os.getenv("FAULT_LIMIT_UPDATE_PERIOD"))
 
         # JWT
         self.JWT_ALGORITHM: str = os.getenv("JWT_ALGORITHM")

@@ -75,20 +75,20 @@ class SymmetricEncryption:
     """Симметричное шифрование (AES-256-GCM, по умолчанию на основе SECRET_KEY)"""
 
     @staticmethod
-    def make_aesgcm(key: str) -> AESGCM:
+    def make_aesgcm(key: bytes) -> AESGCM:
         """Создает 32-байтовый ключ из строчного, на его основе создает шифратор"""
         key = HKDF(
             algorithm=hashes.SHA256(),
             length=32,
             salt=None,
             info=b"auth_symmetric_encryption",
-        ).derive(key.encode('utf-8'))
+        ).derive(key)
         return AESGCM(key)
 
-    app_aesgcm: AESGCM = make_aesgcm(settings.SECRET_KEY)
+    app_aesgcm: AESGCM = make_aesgcm(settings.SECRET_KEY.encode("utf-8"))
 
     @classmethod
-    def encrypt(cls, plain: bytes, key: str = None) -> bytes:
+    def encrypt(cls, plain: bytes, key: bytes = None) -> bytes:
         """Шифрует данные. Возвращает nonce(12) + ciphertext"""
         aesgcm = cls.make_aesgcm(key) if key is not None else cls.app_aesgcm
         nonce = os.urandom(12)
@@ -96,7 +96,7 @@ class SymmetricEncryption:
         return nonce + ciphertext
 
     @classmethod
-    def decrypt(cls, encrypted: bytes, key: str = None) -> bytes:
+    def decrypt(cls, encrypted: bytes, key: bytes = None) -> bytes:
         """Расшифровывает данные (ожидается nonce(12) + ciphertext)"""
         if len(encrypted) < 12:
             raise ValueError("Encrypted data too short (missing nonce)")
