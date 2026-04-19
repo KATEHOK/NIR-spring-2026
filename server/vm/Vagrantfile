@@ -12,7 +12,7 @@ Vagrant.configure("2") do |config|
     ubuntu.vm.provider "virtualbox" do |vb|
       vb.name = "vagrant-vm-ubuntu-nir-spring-2026"
     end
-    ubuntu.vm.synced_folder "C:/Inst/4_course/8_sem_2/NIR/app", "/app"
+    ubuntu.vm.synced_folder "../app", "/app"
   end
 
   config.vm.provider "virtualbox" do |vb|
