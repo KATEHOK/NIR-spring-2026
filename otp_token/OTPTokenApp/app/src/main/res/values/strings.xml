@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">OTPTokenApp</string>
+    <string name="auth_prompt">Подтвердите личность!</string>
+    <string name="biometric_ready">Биометрия доступна. Пройдите аутентификацию по биометрии!</string>
+    <string name="error_biometric_format">Ошибка: %s</string>
+    <string name="error_biometric_failed">Ошибка распознавания. Попробуйте снова.</string>
+    <string name="dialog_title">Аутентификация отменена</string>
+    <string name="dialog_message">Вы хотите повторить попытку или выйти?</string>
+    <string name="dialog_retry">Повторить</string>
+    <string name="dialog_exit">Выйти</string>
 </resources>
