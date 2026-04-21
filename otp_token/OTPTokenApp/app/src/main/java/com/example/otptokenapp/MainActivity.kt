@@ -22,10 +22,12 @@ class MainActivity : AppCompatActivity() {
     private lateinit var promptInfo: BiometricPrompt.PromptInfo
     private lateinit var viewModel: MainViewModel
     private lateinit var fragmentContainer: FrameLayout
+    private lateinit var registrationViewModel: RegistrationViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        registrationViewModel = ViewModelProvider(this)[RegistrationViewModel::class.java]
 
         fragmentContainer = findViewById(R.id.fragmentContainer)
         textViewStatus = findViewById(R.id.textViewStatus)
@@ -129,13 +131,37 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
-    private fun showMainContent() {
+    fun showMainContent() {
         textViewStatus.visibility = View.GONE
         progressBar.visibility = View.GONE
         fragmentContainer.visibility = View.VISIBLE
-        // Загружаем фрагмент регистрации (пока без проверки, всегда показываем)
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.fragmentContainer, RegisterInitFragment())
-            .commitAllowingStateLoss()
+
+        // Если уже зарегистрированы, показываем основной экран OTP
+        val prefs = getSharedPreferences("secure_prefs", MODE_PRIVATE)
+        if (prefs.getBoolean("is_registered", false)) {
+            showMainOtpScreen()
+            return
+        }
+
+        // Если ожидаем подтверждения (после нажатия "Далее") - показываем фрагмент подтверждения
+        if (registrationViewModel.awaitingConfirmation) {
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.fragmentContainer, RegisterConfirmFragment())
+                .commitAllowingStateLoss()
+        } else {
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.fragmentContainer, RegisterInitFragment())
+                .commitAllowingStateLoss()
+        }
+    }
+
+    fun showMainOtpScreen() {
+        // Временно: показываем сообщение, позже заменим на фрагмент OTP
+        val fragment = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
+        if (fragment !is MainOtpFragment) {
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.fragmentContainer, MainOtpFragment())
+                .commitAllowingStateLoss()
+        }
     }
 }

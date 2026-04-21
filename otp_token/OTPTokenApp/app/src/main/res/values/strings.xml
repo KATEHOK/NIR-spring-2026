@@ -13,4 +13,10 @@
     <string name="pin_code_placeholder">--------</string>
     <string name="register_copy_button">Копировать PIN-код</string>
     <string name="register_next_button">Далее (ввести key_part)</string>
+    <string name="confirm_title">Подтверждение регистрации</string>
+    <string name="confirm_key_part_label">Введите key_part (Base32):</string>
+    <string name="confirm_key_part_hint">Например: ABCDEFGHIJKLMNOPQRSTUVWXYZ12</string>
+    <string name="confirm_button">Подтвердить</string>
+    <string name="saving_success">Ключ сохранён. Регистрация завершена.</string>
+    <string name="saving_error">Ошибка сохранения: %s</string>
 </resources>

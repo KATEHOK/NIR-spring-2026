@@ -27,7 +27,7 @@ class RegisterInitFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        registrationViewModel = ViewModelProvider(requireActivity()).get(RegistrationViewModel::class.java)
+        registrationViewModel = ViewModelProvider(requireActivity())[RegistrationViewModel::class.java]
 
         textViewPinCode = view.findViewById(R.id.textViewPinCode)
         buttonCopyPin = view.findViewById(R.id.buttonCopyPin)
@@ -46,8 +46,7 @@ class RegisterInitFragment : Fragment() {
 
         buttonNext.setOnClickListener {
             registrationViewModel.awaitingConfirmation = true
-            // Переключиться на экран подтверждения (будет реализовано на шаге 2)
-            Toast.makeText(requireContext(), "Переход к вводу key_part", Toast.LENGTH_SHORT).show()
+            (requireActivity() as MainActivity).showMainContent()
         }
     }
 
