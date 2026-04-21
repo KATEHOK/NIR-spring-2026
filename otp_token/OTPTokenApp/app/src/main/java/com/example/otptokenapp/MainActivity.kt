@@ -2,6 +2,8 @@ package com.example.otptokenapp
 
 import android.app.AlertDialog
 import android.os.Bundle
+import android.view.View
+import android.widget.FrameLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -19,11 +21,13 @@ class MainActivity : AppCompatActivity() {
     private lateinit var biometricPrompt: BiometricPrompt
     private lateinit var promptInfo: BiometricPrompt.PromptInfo
     private lateinit var viewModel: MainViewModel
+    private lateinit var fragmentContainer: FrameLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        fragmentContainer = findViewById(R.id.fragmentContainer)
         textViewStatus = findViewById(R.id.textViewStatus)
         progressBar = findViewById(R.id.progressBar)
 
@@ -126,7 +130,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showMainContent() {
-        textViewStatus.text = "Добро пожаловать! Здесь будет интерфейс OTP-токена."
-        // Здесь позже добавим реальные элементы (кнопки регистрации, генерации OTP)
+        textViewStatus.visibility = View.GONE
+        progressBar.visibility = View.GONE
+        fragmentContainer.visibility = View.VISIBLE
+        // Загружаем фрагмент регистрации (пока без проверки, всегда показываем)
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.fragmentContainer, RegisterInitFragment())
+            .commitAllowingStateLoss()
     }
 }
