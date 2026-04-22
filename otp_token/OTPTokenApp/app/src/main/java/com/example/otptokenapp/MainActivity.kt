@@ -2,16 +2,19 @@ package com.example.otptokenapp
 
 import android.app.AlertDialog
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
 import java.util.concurrent.Executor
 import androidx.lifecycle.ViewModelProvider
+import androidx.core.content.edit
 
 class MainActivity : AppCompatActivity() {
 
@@ -162,6 +165,22 @@ class MainActivity : AppCompatActivity() {
             supportFragmentManager.beginTransaction()
                 .replace(R.id.fragmentContainer, MainOtpFragment())
                 .commitAllowingStateLoss()
+        }
+    }
+
+    fun resetTokenData() {
+        try {
+            CryptoHelper.deleteMasterKey()
+
+            val prefs = getSharedPreferences("secure_prefs", MODE_PRIVATE)
+            prefs.edit { clear() }
+
+            Toast.makeText(this, R.string.reset_success, Toast.LENGTH_SHORT).show()
+
+            recreate()
+        } catch (e: Exception) {
+            Toast.makeText(this, getString(R.string.reset_error, e.message), Toast.LENGTH_LONG).show()
+            Log.e("MainActivity", "Reset failed", e)
         }
     }
 }

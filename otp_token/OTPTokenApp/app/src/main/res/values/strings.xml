@@ -19,4 +19,15 @@
     <string name="confirm_button">Подтвердить</string>
     <string name="saving_success">Ключ сохранён. Регистрация завершена.</string>
     <string name="saving_error">Ошибка сохранения: %s</string>
+    <string name="otp_title">OTP-токен</string>
+    <string name="challenge_hint">Введите challenge</string>
+    <string name="generate_otp">Сгенерировать OTP</string>
+    <string name="login_success">Подтвердить вход</string>
+    <string name="reset_token">Сбросить токен</string>
+    <string name="reset_confirm_title">Сброс токена</string>
+    <string name="reset_confirm_message">Вы действительно хотите удалить все данные токена? Это действие нельзя отменить.</string>
+    <string name="reset_confirm_positive">Да, сбросить</string>
+    <string name="reset_confirm_negative">Отмена</string>
+    <string name="reset_success">Данные удалены. Приложение будет перезапущено.</string>
+    <string name="reset_error">Ошибка при сбросе: %s</string>
 </resources>

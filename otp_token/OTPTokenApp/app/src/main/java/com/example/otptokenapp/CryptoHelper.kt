@@ -17,7 +17,7 @@ object CryptoHelper {
     private const val ANDROID_KEYSTORE = "AndroidKeyStore"
 
     fun getMasterKey(context: Context): SecretKey {
-        Log.d("CRYPTO", "getMasterKey started")
+        Log.d("CryptoHelper", "getMasterKey started")
         // Проверяем, существует ли уже ключ
         val keyStore = KeyStore.getInstance(ANDROID_KEYSTORE)
         keyStore.load(null)
@@ -51,7 +51,7 @@ object CryptoHelper {
     }
 
     fun encryptData(data: ByteArray, secretKey: SecretKey): ByteArray {
-        Log.d("CRYPTO", "encryptData started")
+        Log.d("CryptoHelper", "encryptData started")
         val cipher = Cipher.getInstance("AES/GCM/NoPadding")
         cipher.init(Cipher.ENCRYPT_MODE, secretKey)
         val iv = cipher.iv
@@ -79,7 +79,7 @@ object CryptoHelper {
 
     // Получение строки (расшифрованной)
     fun getEncryptedString(context: Context, key: String, secretKey: SecretKey): String? {
-        Log.d("CRYPTO", "getEncryptedString started")
+        Log.d("CryptoHelper", "getEncryptedString started")
         val prefs = context.getSharedPreferences("secure_prefs", Context.MODE_PRIVATE)
         val base64 = prefs.getString(key, null) ?: return null
         val encrypted = android.util.Base64.decode(base64, android.util.Base64.DEFAULT)
@@ -89,7 +89,7 @@ object CryptoHelper {
 
     // Сохранение произвольных байтов (зашифрованных)
     fun saveEncryptedBytes(context: Context, key: String, data: ByteArray, secretKey: SecretKey) {
-        Log.d("CRYPTO", "saveEncryptedBytes started")
+        Log.d("CryptoHelper", "saveEncryptedBytes started")
         val encrypted = encryptData(data, secretKey)
         val prefs = context.getSharedPreferences("secure_prefs", Context.MODE_PRIVATE)
         prefs.edit {
@@ -103,5 +103,17 @@ object CryptoHelper {
         val base64 = prefs.getString(key, null) ?: return null
         val encrypted = android.util.Base64.decode(base64, android.util.Base64.DEFAULT)
         return decryptData(encrypted, secretKey)
+    }
+
+    fun deleteMasterKey() {
+        try {
+            val keyStore = KeyStore.getInstance(ANDROID_KEYSTORE)
+            keyStore.load(null)
+            if (keyStore.containsAlias(MASTER_KEY_ALIAS)) {
+                keyStore.deleteEntry(MASTER_KEY_ALIAS)
+            }
+        } catch (e: Exception) {
+            Log.e("CryptoHelper", "Failed to delete master key", e)
+        }
     }
 }
