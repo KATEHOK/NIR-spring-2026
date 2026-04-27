@@ -1,6 +1,9 @@
 package com.example.otptokenapp
 
 import android.app.AlertDialog
+import android.content.Intent
+import android.content.SharedPreferences
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -8,6 +11,7 @@ import android.widget.FrameLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
@@ -15,6 +19,9 @@ import androidx.core.content.ContextCompat
 import java.util.concurrent.Executor
 import androidx.lifecycle.ViewModelProvider
 import androidx.core.content.edit
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKey
+import java.io.File
 
 class MainActivity : AppCompatActivity() {
 
@@ -26,6 +33,18 @@ class MainActivity : AppCompatActivity() {
     private lateinit var viewModel: MainViewModel
     private lateinit var fragmentContainer: FrameLayout
     private lateinit var registrationViewModel: RegistrationViewModel
+    val securePrefs: SharedPreferences by lazy {
+        val masterKey = MasterKey.Builder(this)
+            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+            .build()  // без биометрии
+        EncryptedSharedPreferences.create(
+            this,
+            "secure_prefs",
+            masterKey,
+            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+        )
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -140,8 +159,7 @@ class MainActivity : AppCompatActivity() {
         fragmentContainer.visibility = View.VISIBLE
 
         // Если уже зарегистрированы, показываем основной экран OTP
-        val prefs = getSharedPreferences("secure_prefs", MODE_PRIVATE)
-        if (prefs.getBoolean("is_registered", false)) {
+        if (securePrefs.getBoolean("is_registered", false)) {
             showMainOtpScreen()
             return
         }
@@ -170,14 +188,21 @@ class MainActivity : AppCompatActivity() {
 
     fun resetTokenData() {
         try {
-            CryptoHelper.deleteMasterKey()
+            // Удаляем SharedPreferences (включая EncryptedSharedPreferences)
+            deleteSharedPreferences("secure_prefs")
 
-            val prefs = getSharedPreferences("secure_prefs", MODE_PRIVATE)
-            prefs.edit { clear() }
+            // Сбрасываем состояние ViewModel
+            registrationViewModel.generatedPinCode = null
+            registrationViewModel.awaitingConfirmation = false
+            registrationViewModel.enteredKeyPart = null
 
             Toast.makeText(this, R.string.reset_success, Toast.LENGTH_SHORT).show()
 
-            recreate()
+            // Перезапускаем приложение
+            val intent = packageManager.getLaunchIntentForPackage(packageName)
+            intent?.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+            startActivity(intent)
+            finishAffinity()
         } catch (e: Exception) {
             Toast.makeText(this, getString(R.string.reset_error, e.message), Toast.LENGTH_LONG).show()
             Log.e("MainActivity", "Reset failed", e)
