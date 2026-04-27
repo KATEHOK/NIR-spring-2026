@@ -1,4 +1,6 @@
 
+demo/**
+
 server/app/.secrets/*.pem
 
 server/app/src/**/__pycache__/

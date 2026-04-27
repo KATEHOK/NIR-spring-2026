@@ -1,3 +1,4 @@
+import base64
 from datetime import timedelta
 from fastapi import HTTPException, status
 from sqlalchemy.exc import IntegrityError
@@ -133,7 +134,7 @@ class LoginService:
         await session.commit()
         return LoginSchemas.Init.Resp(
             refresh_token=token.token,
-            challenge=challenge.decode('utf-8')
+            challenge=base64.b64encode(challenge).decode('utf-8')
         )
 
     @staticmethod
@@ -153,7 +154,7 @@ class LoginService:
             require_not_banned=True,
             session=session
         )
-        await LoginService.verify_otp(user, otp.encode('utf-8'), session)
+        await LoginService.verify_otp(user, base64.b64decode(otp), session)
         new_refresh = await TokenService.set_refresh_token(user.id, accepted=True, fast=False, session=session)
         new_access = JWT.issue_access_token(new_refresh.user_id, new_refresh.id)
         old_token.revoked = True
@@ -171,12 +172,17 @@ class UserService:
     @staticmethod
     async def is_banned(user: UserModel, session: AsyncSession = None) -> bool:
         """Проверяет: в бане ли пользователь, при необходимости сбрасывает счетчик ошибок"""
+        print("UserService.is_banned:", "begin")
         if user.last_fault_at is None:
             return False
+        print("UserService.is_banned:", "after 'user.last_fault_at is None'")
         fault_update_exp = user.last_fault_at + timedelta(minutes=settings.FAULT_LIMIT_UPDATE_PERIOD)
         ban_exp = user.last_fault_at + timedelta(minutes=settings.BAN_PERIOD)
         utcnow = datetime_utcnow()
         too_much_fault = user.failed_login_count >= settings.FAULT_LIMIT
+        print("UserService.is_banned:", "user.failed_login_count", user.failed_login_count)
+        print("UserService.is_banned:", "settings.FAULT_LIMIT", settings.FAULT_LIMIT)
+        print("UserService.is_banned:", "user.failed_login_count >= settings.FAULT_LIMIT", user.failed_login_count >= settings.FAULT_LIMIT)
         if (
             not too_much_fault and utcnow > fault_update_exp or
             too_much_fault and utcnow > ban_exp
@@ -186,6 +192,8 @@ class UserService:
             user.failed_login_count = 0
             await session.commit()
             return False
+        print("UserService.is_banned:", "too_much_fault", too_much_fault)
+        print("UserService.is_banned:", "before 'return too_much_fault'")
         return too_much_fault
 
     @staticmethod
@@ -203,7 +211,7 @@ class UserService:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
         if password is not None and not Password.verify(password, user.password):
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect password")
-        if require_not_banned and UserService.is_banned(user, session):
+        if require_not_banned and await UserService.is_banned(user, session):
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Banned user")
         if require_active and not user.is_active:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Inactive user")

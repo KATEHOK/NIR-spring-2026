@@ -1,11 +1,10 @@
 import base64
+import hashlib
 import os
 import secrets
 import jwt
 import bcrypt
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
-from cryptography.hazmat.primitives.kdf.hkdf import HKDF
-from cryptography.hazmat.primitives import hashes
 from datetime import datetime, timedelta
 from src.utils import datetime_utcnow
 from src.config import settings
@@ -76,13 +75,8 @@ class SymmetricEncryption:
 
     @staticmethod
     def make_aesgcm(key: bytes) -> AESGCM:
-        """Создает 32-байтовый ключ из строчного, на его основе создает шифратор"""
-        key = HKDF(
-            algorithm=hashes.SHA256(),
-            length=32,
-            salt=None,
-            info=b"auth_symmetric_encryption",
-        ).derive(key)
+        # Вместо HKDF используем SHA-256 (как на клиенте)
+        key = hashlib.sha256(key).digest()
         return AESGCM(key)
 
     app_aesgcm: AESGCM = make_aesgcm(settings.SECRET_KEY.encode("utf-8"))

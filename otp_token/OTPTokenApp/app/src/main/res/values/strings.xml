@@ -9,7 +9,7 @@
     <string name="dialog_retry">Повторить</string>
     <string name="dialog_exit">Выйти</string>
     <string name="register_title">Регистрация OTP-токена</string>
-    <string name="register_pin_label">Сгенерированный PIN-код:</string>
+    <string name="register_pin_label">PIN-код:</string>
     <string name="pin_code_placeholder">--------</string>
     <string name="register_copy_button">Копировать PIN-код</string>
     <string name="register_next_button">Далее (ввести key_part)</string>
@@ -30,4 +30,7 @@
     <string name="reset_confirm_negative">Отмена</string>
     <string name="reset_success">Данные удалены. Приложение будет перезапущено.</string>
     <string name="reset_error">Ошибка при сбросе: %s</string>
+    <string name="confirm_login">Подтвердить вход</string>
+    <string name="cancel_login">Отмена</string>
+    <string name="copy_otp">Копировать OTP</string>
 </resources>

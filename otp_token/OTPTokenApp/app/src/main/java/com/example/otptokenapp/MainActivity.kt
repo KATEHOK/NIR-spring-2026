@@ -3,7 +3,6 @@ package com.example.otptokenapp
 import android.app.AlertDialog
 import android.content.Intent
 import android.content.SharedPreferences
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -11,17 +10,14 @@ import android.widget.FrameLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
 import java.util.concurrent.Executor
 import androidx.lifecycle.ViewModelProvider
-import androidx.core.content.edit
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
-import java.io.File
 
 class MainActivity : AppCompatActivity() {
 
@@ -36,7 +32,7 @@ class MainActivity : AppCompatActivity() {
     val securePrefs: SharedPreferences by lazy {
         val masterKey = MasterKey.Builder(this)
             .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
-            .build()  // без биометрии
+            .build()
         EncryptedSharedPreferences.create(
             this,
             "secure_prefs",
@@ -149,7 +145,7 @@ class MainActivity : AppCompatActivity() {
             .setNegativeButton(getString(R.string.dialog_exit)) { _, _ ->
                 finishAffinity()
             }
-            .setCancelable(false) // запрещаем закрытие по нажатию вне диалога
+            .setCancelable(false)
             .show()
     }
 
@@ -158,13 +154,11 @@ class MainActivity : AppCompatActivity() {
         progressBar.visibility = View.GONE
         fragmentContainer.visibility = View.VISIBLE
 
-        // Если уже зарегистрированы, показываем основной экран OTP
         if (securePrefs.getBoolean("is_registered", false)) {
             showMainOtpScreen()
             return
         }
 
-        // Если ожидаем подтверждения (после нажатия "Далее") - показываем фрагмент подтверждения
         if (registrationViewModel.awaitingConfirmation) {
             supportFragmentManager.beginTransaction()
                 .replace(R.id.fragmentContainer, RegisterConfirmFragment())
@@ -177,7 +171,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun showMainOtpScreen() {
-        // Временно: показываем сообщение, позже заменим на фрагмент OTP
         val fragment = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
         if (fragment !is MainOtpFragment) {
             supportFragmentManager.beginTransaction()
@@ -188,17 +181,14 @@ class MainActivity : AppCompatActivity() {
 
     fun resetTokenData() {
         try {
-            // Удаляем SharedPreferences (включая EncryptedSharedPreferences)
             deleteSharedPreferences("secure_prefs")
 
-            // Сбрасываем состояние ViewModel
             registrationViewModel.generatedPinCode = null
             registrationViewModel.awaitingConfirmation = false
             registrationViewModel.enteredKeyPart = null
 
             Toast.makeText(this, R.string.reset_success, Toast.LENGTH_SHORT).show()
 
-            // Перезапускаем приложение
             val intent = packageManager.getLaunchIntentForPackage(packageName)
             intent?.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
             startActivity(intent)

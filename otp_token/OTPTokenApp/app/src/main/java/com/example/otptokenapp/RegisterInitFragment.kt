@@ -33,7 +33,6 @@ class RegisterInitFragment : Fragment() {
         buttonCopyPin = view.findViewById(R.id.buttonCopyPin)
         buttonNext = view.findViewById(R.id.buttonNextToConfirm)
 
-        // Если PIN-код уже сгенерирован (например, после поворота), используем его, иначе генерируем новый
         val pinCode = registrationViewModel.generatedPinCode ?: generatePinCode().also {
             registrationViewModel.generatedPinCode = it
         }
