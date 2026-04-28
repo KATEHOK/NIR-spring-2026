@@ -1,6 +1,6 @@
 # Прототип системы мультифакторной аутентификации
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/IajmY2cxHq0?si=OeDr8aILuT_-pmU8" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+[Демонстрация](https://youtu.be/IajmY2cxHq0?si=mG-Ke_3tlPwk2WVR)
 
 Данный проект представляет собой прототип системы мультифакторной аутентификации. Система состоит из компонентов:
 
