@@ -6,7 +6,6 @@ from conftest import log_result
 # ---------------------------------------------------------------------------
 # 0. Прогрев стенда (установление сессии и тд)
 # ---------------------------------------------------------------------------
-
 def test_warmup(client):
     resp = client.get("/auth/touch-db")
     elapsed = resp.elapsed.total_seconds() * 1000

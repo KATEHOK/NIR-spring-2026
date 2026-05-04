@@ -43,47 +43,6 @@ def client():
     with httpx.Client(base_url=BASE_URL, timeout=10.0) as c:
         yield c
 
-# @pytest.fixture(scope="function")
-# def registered_user(client):
-#     """
-#     Регистрирует нового пользователя (init + accept) и возвращает словарь с его данными.
-#     """
-#     pin_code = generate_pin_code()
-#     password = generate_password()
-#
-#     # 1. register-init
-#     resp_init = client.post("/auth/register-init", json={
-#         "pin_code": pin_code,
-#         "password": password
-#     })
-#     assert resp_init.status_code == 201, f"Register init failed: {resp_init.text}"
-#     data_init = resp_init.json()
-#     refresh_token = data_init["refresh_token"]
-#     key_part = data_init["key_part"]
-#
-#     # 2. register-accept
-#     resp_accept = client.post("/auth/register-accept", json={
-#         "refresh_token": refresh_token
-#     })
-#     assert resp_accept.status_code == 201, f"Register accept failed: {resp_accept.text}"
-#     data_accept = resp_accept.json()
-#     access_token = data_accept["access_token"]
-#     new_refresh_token = data_accept["refresh_token"]
-#
-#     # Извлекаем user_id из access_token без проверки подписи
-#     payload = decode_access_token_without_verify(access_token)
-#     user_id = int(payload["sub"])
-#
-#     return {
-#         "user_id": user_id,
-#         "password": password,
-#         "pin_code": pin_code,
-#         "key_part": key_part,
-#         "refresh_token": new_refresh_token,
-#         "access_token": access_token,
-#     }
-
-
 @pytest.fixture(scope="function")
 def register_init(client):
     """Инициализация регистрации. Возвращает данные + elapsed_time_ms."""
