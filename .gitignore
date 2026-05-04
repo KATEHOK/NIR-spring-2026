@@ -3,13 +3,12 @@ demo/**
 
 server/app/.secrets/*.pem
 
-server/app/src/**/__pycache__/
-
 server/vm/**
 !server/vm/Vagrantfile
 
 report/**
 !**/*.pdf
 
+**/__pycache__/
 **.idea/
 **.venv/

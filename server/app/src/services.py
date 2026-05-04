@@ -1,4 +1,5 @@
 import base64
+import logging
 from datetime import timedelta
 from fastapi import HTTPException, status
 from sqlalchemy.exc import IntegrityError
@@ -9,6 +10,9 @@ from src.utils import datetime_utcnow, timestamp_utcnow
 from src.repository import AsyncAuthRepo
 from src.schemas import RefreshSchema, RegisterSchemas, LoginSchemas
 from src.models import RefreshTokenModel, UserModel
+
+
+logger = logging.getLogger("auth_server")
 
 
 class SystemService:
@@ -92,23 +96,27 @@ class LoginService:
         Проверяет OTP (вызывает функцию, коммититящую и выбрасывающую HTTP-исключения):
         otp = {challenge_random}:{login_count}
         """
-        key = SymmetricEncryption.decrypt(user.key)
-        plain_otp = SymmetricEncryption.decrypt(otp, key).decode('utf-8')
-        if ":" not in plain_otp:
-            await LoginService.handle_incorrect_otp(user, session)
-        i = plain_otp.index(":")
-        login_count = plain_otp[i+1:]
-        if not login_count.isdigit():
-            await LoginService.handle_incorrect_otp(user, session)
-        if int(login_count) != user.login_count:
-            await LoginService.handle_incorrect_otp(user, session)
-        challenge = SymmetricEncryption.decrypt(user.challenge).decode('utf-8')
-        if plain_otp[:i] != challenge[:challenge.index(":")]:
-            await LoginService.handle_incorrect_otp(user, session)
+        try:
+            key = SymmetricEncryption.decrypt(user.key)
+            plain_otp = SymmetricEncryption.decrypt(otp, key).decode('utf-8')
+            if ":" not in plain_otp:
+                raise ValueError("Invalid OTP format")
+            i = plain_otp.index(":")
+            login_count = plain_otp[i+1:]
+            if not login_count.isdigit():
+                raise ValueError("Invalid login count")
+            if int(login_count) != user.login_count:
+                raise ValueError("Login count mismatch")
+            challenge = SymmetricEncryption.decrypt(user.challenge).decode('utf-8')
+            if plain_otp[:i] != challenge[:challenge.index(":")]:
+                raise ValueError("Challenge mismatch")
+        except (ValueError, Exception) as e:
+            await LoginService.handle_incorrect_otp(user, str(e), session)
 
     @staticmethod
-    async def handle_incorrect_otp(user: UserModel, session: AsyncSession):
+    async def handle_incorrect_otp(user: UserModel, detail: str, session: AsyncSession):
         """Обрабатывает ситуацию некорректного OTP (коммитит измененное число попыток)"""
+        logger.info(f"Incorrect OTP for user_id={user.id}: {detail}")
         await AsyncAuthRepo.increment_user_faults(
             user_id=user.id,
             last_fault_at=datetime_utcnow(),
@@ -116,7 +124,7 @@ class LoginService:
             session=session
         )
         await session.commit()
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect OTP")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Incorrect OTP")
 
     @staticmethod
     async def init(user_id: int, password: str, session: AsyncSession) -> LoginSchemas.Init.Resp:
@@ -172,17 +180,12 @@ class UserService:
     @staticmethod
     async def is_banned(user: UserModel, session: AsyncSession = None) -> bool:
         """Проверяет: в бане ли пользователь, при необходимости сбрасывает счетчик ошибок"""
-        print("UserService.is_banned:", "begin")
         if user.last_fault_at is None:
             return False
-        print("UserService.is_banned:", "after 'user.last_fault_at is None'")
         fault_update_exp = user.last_fault_at + timedelta(minutes=settings.FAULT_LIMIT_UPDATE_PERIOD)
         ban_exp = user.last_fault_at + timedelta(minutes=settings.BAN_PERIOD)
         utcnow = datetime_utcnow()
         too_much_fault = user.failed_login_count >= settings.FAULT_LIMIT
-        print("UserService.is_banned:", "user.failed_login_count", user.failed_login_count)
-        print("UserService.is_banned:", "settings.FAULT_LIMIT", settings.FAULT_LIMIT)
-        print("UserService.is_banned:", "user.failed_login_count >= settings.FAULT_LIMIT", user.failed_login_count >= settings.FAULT_LIMIT)
         if (
             not too_much_fault and utcnow > fault_update_exp or
             too_much_fault and utcnow > ban_exp
@@ -192,8 +195,6 @@ class UserService:
             user.failed_login_count = 0
             await session.commit()
             return False
-        print("UserService.is_banned:", "too_much_fault", too_much_fault)
-        print("UserService.is_banned:", "before 'return too_much_fault'")
         return too_much_fault
 
     @staticmethod
