@@ -1,0 +1,62 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/26.0.9 Chrome/128.0.6613.186 Electron/32.2.5 Safari/537.36">
+  <diagram id="C5RBs43oDa-KdzZeNtuy" name="Page-1">
+    <mxGraphModel dx="1664" dy="1011" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="WIyWlLk6GJQsqaUBKTNV-0" />
+        <mxCell id="WIyWlLk6GJQsqaUBKTNV-1" parent="WIyWlLk6GJQsqaUBKTNV-0" />
+        <mxCell id="4WVYc96sjKl2JJLhytpp-9" edge="1" parent="WIyWlLk6GJQsqaUBKTNV-1" source="4WVYc96sjKl2JJLhytpp-0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;" target="4WVYc96sjKl2JJLhytpp-2" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="4WVYc96sjKl2JJLhytpp-0" parent="WIyWlLk6GJQsqaUBKTNV-1" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=2;fontSize=16;fontStyle=0" value="&lt;font&gt;НАЧАЛО&lt;/font&gt;" vertex="1">
+          <mxGeometry height="30" width="80" x="195" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="4WVYc96sjKl2JJLhytpp-19" edge="1" parent="WIyWlLk6GJQsqaUBKTNV-1" source="4WVYc96sjKl2JJLhytpp-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;" target="4WVYc96sjKl2JJLhytpp-4" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="4WVYc96sjKl2JJLhytpp-2" parent="WIyWlLk6GJQsqaUBKTNV-1" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=2;fontSize=16;fontStyle=0" value="&lt;font&gt;Запрос подтверждения необратимого действия&lt;/font&gt;" vertex="1">
+          <mxGeometry height="80" width="130" x="170" y="90" as="geometry" />
+        </mxCell>
+        <mxCell id="4WVYc96sjKl2JJLhytpp-11" edge="1" parent="WIyWlLk6GJQsqaUBKTNV-1" source="4WVYc96sjKl2JJLhytpp-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;" target="4WVYc96sjKl2JJLhytpp-8" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="4WVYc96sjKl2JJLhytpp-17" connectable="0" parent="4WVYc96sjKl2JJLhytpp-11" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;Нет&lt;/font&gt;" vertex="1">
+          <mxGeometry relative="1" x="-0.3929" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="4WVYc96sjKl2JJLhytpp-14" edge="1" parent="WIyWlLk6GJQsqaUBKTNV-1" source="4WVYc96sjKl2JJLhytpp-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;" target="4WVYc96sjKl2JJLhytpp-5" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="4WVYc96sjKl2JJLhytpp-18" connectable="0" parent="4WVYc96sjKl2JJLhytpp-14" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;Да&lt;/font&gt;" vertex="1">
+          <mxGeometry relative="1" x="-0.1937" as="geometry">
+            <mxPoint x="-3" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="4WVYc96sjKl2JJLhytpp-4" parent="WIyWlLk6GJQsqaUBKTNV-1" style="rhombus;whiteSpace=wrap;html=1;strokeWidth=2;" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;Действие&lt;/font&gt;&lt;div&gt;&lt;font style=&quot;font-size: 16px;&quot;&gt;подтверждено&lt;/font&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="80" width="190" x="140" y="190" as="geometry" />
+        </mxCell>
+        <mxCell id="4WVYc96sjKl2JJLhytpp-15" edge="1" parent="WIyWlLk6GJQsqaUBKTNV-1" source="4WVYc96sjKl2JJLhytpp-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;" target="4WVYc96sjKl2JJLhytpp-7" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="4WVYc96sjKl2JJLhytpp-5" parent="WIyWlLk6GJQsqaUBKTNV-1" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=2;fontSize=16;fontStyle=0" value="&lt;font&gt;Полное удаление данных из зашифрованного хранилища&lt;/font&gt;" vertex="1">
+          <mxGeometry height="80" width="150" x="375" y="190" as="geometry" />
+        </mxCell>
+        <mxCell id="4WVYc96sjKl2JJLhytpp-6" parent="WIyWlLk6GJQsqaUBKTNV-1" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=2;fontSize=16;fontStyle=0" value="&lt;font&gt;КОНЕЦ&lt;/font&gt;" vertex="1">
+          <mxGeometry height="30" width="65" x="202.5" y="380" as="geometry" />
+        </mxCell>
+        <mxCell id="4WVYc96sjKl2JJLhytpp-16" edge="1" parent="WIyWlLk6GJQsqaUBKTNV-1" source="4WVYc96sjKl2JJLhytpp-7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;" target="4WVYc96sjKl2JJLhytpp-6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="4WVYc96sjKl2JJLhytpp-7" parent="WIyWlLk6GJQsqaUBKTNV-1" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;strokeWidth=2;" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;Вывод: данные удалены&lt;/font&gt;" vertex="1">
+          <mxGeometry height="30" width="225" x="337.5" y="310" as="geometry" />
+        </mxCell>
+        <mxCell id="4WVYc96sjKl2JJLhytpp-12" edge="1" parent="WIyWlLk6GJQsqaUBKTNV-1" source="4WVYc96sjKl2JJLhytpp-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;" target="4WVYc96sjKl2JJLhytpp-6" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="4WVYc96sjKl2JJLhytpp-8" parent="WIyWlLk6GJQsqaUBKTNV-1" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;strokeWidth=2;" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;Вывод: отмена&lt;/font&gt;" vertex="1">
+          <mxGeometry height="30" width="150" x="160" y="310" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

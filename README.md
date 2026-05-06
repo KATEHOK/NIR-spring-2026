@@ -163,7 +163,11 @@ FAST_REFRESH_TOKEN_EXPIRE_MINUTES=5
 │   │   └── tests/              # тесты связки сервер+БД
 │   └── vm/
 │       └── Vagrantfile         # конфигурация виртуальной машины
-└── otp_token/                  # Android-приложение
+├── otp_token/                  # Android-приложение
+├── diagram/                    # диаграммы (блок-схемы, UML, BPMN, ER)
+├── screenshots/                # скриншоты
+├── pictures/                   # дополнительные изображения (QR-коды, лого)
+└── report/                     # отчет и презентация работы (pdf)
 ```
 
 ---
