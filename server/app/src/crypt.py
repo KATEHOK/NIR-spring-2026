@@ -4,6 +4,7 @@ import os
 import secrets
 import jwt
 import bcrypt
+import asyncio
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from datetime import datetime, timedelta
 from src.utils import datetime_utcnow
@@ -28,6 +29,17 @@ class Password:
             password=password.encode(),
             hashed_password=hashed_password
         )
+
+    @classmethod
+    async def async_hash(cls, password: str) -> bytes:
+        """Вызывает хэширование пароля (в отдельном потоке)"""
+        return await asyncio.to_thread(cls.hash, password)
+
+    @classmethod
+    async def async_verify(cls, password: str, hashed_password: bytes) -> bool:
+        """Вызывает проверку пароля (в отдельном потоке)"""
+        return await asyncio.to_thread(cls.verify, password, hashed_password)
+
 
 
 class JWT:
@@ -75,7 +87,6 @@ class SymmetricEncryption:
 
     @staticmethod
     def make_aesgcm(key: bytes) -> AESGCM:
-        # Вместо HKDF используем SHA-256 (как на клиенте)
         key = hashlib.sha256(key).digest()
         return AESGCM(key)
 

@@ -1,0 +1,13 @@
+experiment_id,async_mode,func_name,calls_count,elapsed_ms
+QmyEPi2pnJ4,False,hash,100,20482.566
+QmyEPi2pnJ4,False,verify,100,20405.890
+QmyEPi2pnJ4,True,hash,100,1593.252
+QmyEPi2pnJ4,True,verify,100,1576.371
+QmyEPi2pnJ4,False,encode,100,3312.489
+QmyEPi2pnJ4,False,decode,100,7.389
+QmyEPi2pnJ4,True,encode,100,3352.094
+QmyEPi2pnJ4,True,decode,100,15.098
+QmyEPi2pnJ4,False,encrypt,100,0.291
+QmyEPi2pnJ4,False,decrypt,100,0.189
+QmyEPi2pnJ4,True,encrypt,100,4.145
+QmyEPi2pnJ4,True,decrypt,100,3.986

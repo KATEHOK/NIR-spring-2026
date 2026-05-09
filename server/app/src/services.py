@@ -47,7 +47,7 @@ class RegisterService:
     @staticmethod
     async def init(pin_code: str, password: str, session: AsyncSession) -> RegisterSchemas.Init.Resp:
         """Инициализация регистрации пользователя"""
-        hashed_password = Password.hash(password)
+        hashed_password = await Password.async_hash(password)
         key_part, key = await RegisterService.issue_key(pin_code)
         user = await AsyncAuthRepo.add_user(hashed_password, key, session)
         token = await TokenService.set_refresh_token(user.id, accepted=False, fast=True, session=session)
@@ -210,7 +210,7 @@ class UserService:
         """Валидирует пользователя (выбрасывает HTTP-исключения"""
         if user is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-        if password is not None and not Password.verify(password, user.password):
+        if password is not None and not await Password.async_verify(password, user.password):
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect password")
         if require_not_banned and await UserService.is_banned(user, session):
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Banned user")
