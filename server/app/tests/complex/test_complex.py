@@ -3,18 +3,20 @@ import csv
 import os
 import secrets
 import time
-import threading
 from typing import Any
+from dotenv import load_dotenv
 
 import httpx
 import jwt
 
-BASE_URL = "http://127.0.0.1:8000"
-CSV_FILE = "results_complex.csv"
-CSV_LOCK = threading.Lock()
+load_dotenv()
 
-ACCESS_TOKEN_EXPIRE_MINUTES = 1
-REFRESH_TOKEN_EXPIRE_MINUTES = 2
+BASE_URL = "http://localhost:8000"
+LABEL = os.getenv("SERVER_IMAGE_TAG")
+CSV_FILE = f"tests/complex/results_complex-{LABEL}.csv"
+
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
+REFRESH_TOKEN_EXPIRE_MINUTES = int(os.getenv("REFRESH_TOKEN_EXPIRE_MINUTES"))
 
 ACCESS_TOKEN_WAIT = ACCESS_TOKEN_EXPIRE_MINUTES * 60 + 10   # 70 секунд для 1 мин
 REFRESH_REMAINING_WAIT = max(0, REFRESH_TOKEN_EXPIRE_MINUTES * 60 - ACCESS_TOKEN_WAIT + 10)
@@ -33,14 +35,13 @@ def log_step(step_name: str, status: str, elapsed_ms: float, sleep_ms: float = 0
              scenario: int = 0):
     """Записывает строку в CSV. total_elapsed_ms = elapsed_ms + sleep_ms."""
     total_elapsed_ms = elapsed_ms + sleep_ms
-    with CSV_LOCK:
-        file_exists = os.path.isfile(CSV_FILE)
-        with open(CSV_FILE, mode='a', newline='') as f:
-            writer = csv.writer(f)
-            if not file_exists:
-                writer.writerow(["scenario", "step", "status", "elapsed_ms", "sleep_ms", "total_elapsed_ms"])
-            writer.writerow([scenario, step_name, status,
-                             f"{elapsed_ms:.3f}", f"{sleep_ms:.3f}", f"{total_elapsed_ms:.3f}"])
+    file_exists = os.path.isfile(CSV_FILE)
+    with open(CSV_FILE, mode='a', newline='') as f:
+        writer = csv.writer(f)
+        if not file_exists:
+            writer.writerow(["scenario", "step", "status", "elapsed_ms", "sleep_ms", "total_elapsed_ms"])
+        writer.writerow([scenario, step_name, status,
+                         f"{elapsed_ms:.3f}", f"{sleep_ms:.3f}", f"{total_elapsed_ms:.3f}"])
 
 def measure(label: str, client: httpx.Client, method: str, url: str, **kwargs):
     start = time.perf_counter()
@@ -302,32 +303,14 @@ def scenario4():
     print("Scenario 4 finished.")
 
 
-# ---------------------------------------------------------------------------
-# Параллельный запуск
-# ---------------------------------------------------------------------------
 if __name__ == "__main__":
-    print("Starting complex tests (parallel)...")
-    threads = [
-        threading.Thread(target=scenario1),
-        threading.Thread(target=scenario2),
-        threading.Thread(target=scenario3),
-        threading.Thread(target=scenario4),
-    ]
-    for t in threads:
-        t.start()
-    for t in threads:
-        t.join()
-
-    # Сортировка CSV по столбцу scenario
-    print("Sorting results by scenario...")
-    with open(CSV_FILE, 'r', newline='') as f:
-        reader = csv.reader(f)
-        header = next(reader)
-        rows = list(reader)
-    rows.sort(key=lambda row: int(row[0]) if row[0].isdigit() else 0)
-    with open(CSV_FILE, 'w', newline='') as f:
-        writer = csv.writer(f)
-        writer.writerow(header)
-        writer.writerows(rows)
-
+    print("Starting complex tests (one-by-one)...")
+    for scenario in (
+        scenario1,
+        scenario2,
+        scenario3,
+        scenario4,
+    ):
+        scenario()
+        time.sleep(1)
     print("All scenarios done. Results in", CSV_FILE)

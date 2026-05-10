@@ -19,36 +19,42 @@
   в потоки, а какие оставлять синхронными.
 
 Все тесты, кроме unit‑бенчмарков, выполняют реальные HTTP‑запросы к работающему
-серверу и сохраняют времена ответов в CSV‑файлы. Unit‑бенчмарки работают
+серверу и сохраняют времена ответов в CSV‑файлы (и HTML-файлы). Unit‑бенчмарки работают
 напрямую с модулем `crypt.py` и сервер не требуют.
 
 ## Структура
 
 ```
 tests/
-├── README.md                           # Этот файл
+├── README.md                                       # Этот файл
 │
-├── integration/                        # Интеграционные тесты API
-│   ├── conftest.py                     # Фикстуры и хелперы
-│   ├── test_api.py                     # Тесты
-│   ├── requirements.txt                # Зависимости (httpx, pytest, pyjwt)
-│   └── results_api_integrations.csv    # Результаты запуска (создаётся автоматически)
+├── integration/                                    # Интеграционные тесты API
+│   ├── conftest.py                                 # Фикстуры и хелперы
+│   ├── test_api.py                                 # Тесты
+│   ├── requirements.txt                            # Зависимости
+│   └── results_api_integrations-<image-tag>.csv    # Результаты для docker-образа
 │
-├── locust/                             # Нагрузочное тестирование
-│   ├── locustfile.py                   # Сценарии нагрузки
-│   ├── requirements.txt                # Зависимости (locust, httpx, pyjwt)
-│   ├── results_locust_*.html           # Отчёты Locust (создаются после прогона)
-│   └── results_locust_*.csv            # CSV‑метрики (создаются после прогона)
+├── locust/                                         # Нагрузочное тестирование
+│   ├── locustfile.py                               # Сценарии нагрузки
+│   ├── run.py                                      # Запуск тестов
+│   ├── cleanup_db.py                               # Сброс таблиц в БД
+│   ├── ploting.py                                  # Генерация графиков
+│   ├── requirements.txt                            # Зависимости
+│   └── results/
+│       └── <image-tag>/                            # Результаты для docker-образа
+│           ├── csv/                                # CSV-отчеты
+│           ├── html/                               # HTML-отчеты
+│           └── png/                                # Графики на основе ..._stats.csv
 │
-├── complex/                            # Комплексные сценарии
-│   ├── test_complex.py                 # Четыре сценария полного цикла
-│   ├── requirements.txt                # Зависимости (httpx, pyjwt)
-│   └── results_complex.csv             # Результаты сценариев (создаётся автоматически)
+├── complex/                                        # Комплексные сценарии
+│   ├── test_complex.py                             # Четыре сценария полного цикла
+│   ├── requirements.txt                            # Зависимости
+│   └── results_complex-<image-tag>.csv             # Результаты для docker-образа
 │
-└── unit/                               # Unit‑бенчмарки криптоопераций
-    ├── benchmark_crypto_operations.py  # Сравнение синхронного и потокового выполнения
-    ├── requirements.txt                # Зависимости (cryptography, pyjwt, bcrypt)
-    └── results_benchmark_sync_vs_threaded.csv  # Результаты (создаётся автоматически)
+└── unit/                                           # Unit‑бенчмарки криптоопераций
+    ├── benchmark_crypto_operations.py              # Сравнение синхронного и потокового выполнения
+    ├── requirements.txt                            # Зависимости
+    └── results_benchmark_sync_vs_threaded.csv      # Результаты
 ```
 
 ## Требования
@@ -57,8 +63,7 @@ tests/
   (или `http://localhost:8000`) – **не требуется для unit‑бенчмарков**.
 - База данных проинициализирована (выполнена команда
   `python src/init_db.py` из `server/app/`) – **не требуется для unit‑бенчмарков**.
-- Для нагрузочного тестирования желательно прогреть сервер перед запуском
-  (см. примечания).
+- Для автоматических тестов - запускать из `server/app/`, с переменными из актуального `.env`
 
 ## Установка зависимостей
 
@@ -87,30 +92,18 @@ cd server/app
 pytest tests/integration/test_api.py -v
 ```
 
-Результаты сохраняются в `tests/integration/results_api_integrations.csv`.
+Результаты сохраняются в `tests/integration/results_api_integrations-<image-tag>.csv`.
 
 ### Нагрузочное тестирование (Locust)
 
-```bash
-cd server/app
-locust -f tests/locust/locustfile.py --host http://localhost:8000
-```
-
-Откройте веб-интерфейс Locust (по умолчанию `http://localhost:8089`),
-задайте количество пользователей (например 100) и скорость нарастания (10
-польз./с), запустите тест.
-
 Для автоматического сбора метрик используйте headless‑режим:
-
 ```bash
 cd server/app
-locust -f tests/locust/locustfile.py --host http://localhost:8000 \
-       --headless --users 200 --spawn-rate 2 --run-time 2m \
-       --csv=tests/locust/results_locust  # базовое имя CSV-файлов
+python tests/locust/run.py
 ```
 
-После завершения теста в папке `tests/locust/` появятся файлы
-`results_locust_stats.csv`, `results_locust_failures.csv` и HTML‑отчёт.
+После завершения теста в папке `tests/locust/results/<image-tag>` появятся `csv/` и `html/`.
+Внутри - файлы-отчеты с префиксами `<users>_<spawn-rate>_<run-time>`.
 
 ### Комплексные сценарии
 
@@ -119,9 +112,9 @@ cd server/app
 python tests/complex/test_complex.py
 ```
 
-Сценарии выполняются параллельно (threading). Полный прогон занимает около
-2-х минут (при временах жизни токенов: 1 мин для access и 2 мин для
-refresh). Результаты записываются в `tests/complex/results_complex.csv`.
+Сценарии выполняются последовательно. Полный прогон занимает около
+3-х минут (при временах жизни токенов: 1 мин для access и 2 мин для
+refresh). Результаты записываются в `tests/complex/results_complex-<image-tag>.csv`.
 
 ### Unit‑бенчмарки криптографических операций
 
@@ -139,18 +132,11 @@ python tests/unit/benchmark_crypto_operations.py
 (по умолчанию 100). После выполнения в папке `tests/unit/` создаётся
 файл `results_benchmark_sync_vs_threaded.csv`
 
-Пример настройки количества вызовов (измените `call_count` в файле):
-```python
-# в конце файла benchmark_crypto_operations.py
-if __name__ == "__main__":
-    asyncio.run(main(call_count=50))  # вместо 100
-```
-
 ## Собранные метрики
 
 ### Интеграционные тесты
 
-Файл `results_api_integrations.csv`:
+Файл `results_api_integrations-<image-tag>.csv`:
 
 | Столбец       | Описание                              |
 |---------------|---------------------------------------|
@@ -165,9 +151,15 @@ CSV‑файлы Locust содержат агрегированную стати
 (количество запросов, процент ошибок, медианное и среднее время ответа,
 процентили, RPS). Полный список полей см. в документации Locust.
 
+По метрикам можно построить графики (параметры - в константах):
+```bash
+cd server/app
+python tests/locust/ploting.py
+```
+
 ### Комплексные сценарии
 
-Файл `results_complex.csv`:
+Файл `results_complex-<image-tag>.csv`:
 
 | Столбец           | Описание |
 |-------------------|----------|
@@ -202,11 +194,5 @@ CSV‑файлы Locust содержат агрегированную стати
   сервера без накладных расходов на установку соединения.
 - Успешный `login-accept` не автоматизирован (требует корректного OTP),
   проверяются только негативные сценарии.
-- Перед нагрузочным тестированием рекомендуется прогреть сервер, выполнив
-  20–30 запросов к `/auth/touch-db` (это инициализирует пул соединений с БД
-  и сетевые структуры).
-- Комплексные сценарии корректно работают только при совпадении констант
-  `ACCESS_TOKEN_EXPIRE_MINUTES` и `REFRESH_TOKEN_EXPIRE_MINUTES` в файле
-  `test_complex.py` с соответствующими переменными окружения сервера.
-- Все CSV‑файлы перезаписываются при каждом запуске тестов. Сохраняйте
+- CSV‑файлы могут перезаписываться при очередном запуске тестов. Сохраняйте
   нужные результаты перед повторным прогоном.

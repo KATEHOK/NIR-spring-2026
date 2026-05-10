@@ -2,13 +2,15 @@ import base64
 import csv
 import os
 import secrets
-
 import httpx
 import jwt
 import pytest
+from dotenv import load_dotenv
 
+load_dotenv()
 BASE_URL = "http://localhost:8000"
-CSV_FILE = "results_api_integrations.csv"
+LABEL = os.getenv("SERVER_IMAGE_TAG")
+CSV_FILE = f"tests/integration/results_api_integrations-{LABEL}.csv"
 
 # ---------------------------------------------------------------------------
 # Хелперы

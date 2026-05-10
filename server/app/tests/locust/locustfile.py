@@ -1,190 +1,505 @@
 import base64
 import secrets
-import jwt
-from typing import Any
+import os
+import time
+from typing import Callable
 from locust import HttpUser, task, between
+from locust.clients import HttpSession
 
 BASE_URL = "http://localhost:8000"
+WAIT_TIME = between(0.5, 1)
+REFRESH_TOKEN_EXPIRE_SECONDS = int(os.getenv("REFRESH_TOKEN_EXPIRE_MINUTES")) * 60
+JWT_EXPIRE_SECONDS = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES")) * 60
+JWT_VALIDATE_ITERATIONS = 10
+JWT_REFRESH_ITERATIONS = 10
+LOGIN_ITERATIONS = 10
+LOGIN_FAULT_LIMIT = int(os.getenv("FAULT_LIMIT"))
 
-# ---------------------------------------------------------------------------
-# Хелперы
-# ---------------------------------------------------------------------------
-def generate_pin_code() -> str:
-    random_bytes = secrets.token_bytes(6)
-    return base64.urlsafe_b64encode(random_bytes).decode('utf-8').rstrip('=')
 
-def generate_password() -> str:
-    return secrets.token_hex(8)
+class Helper:
+    client: HttpSession
 
-def make_fake_otp() -> str:
-    return base64.b64encode(b"wrong_otp_123456").decode()
+    def __init__(self, client):
+        self.client = client
 
-def register_and_get_tokens(user: HttpUser) -> dict[str, Any]:
-    """
-    Регистрирует нового пользователя через API.
-    Возвращает словарь с user_id, password, access_token, refresh_token.
-    При ошибке останавливает пользователя и выбрасывает StopIteration.
-    """
-    pin = generate_pin_code()
-    pw = generate_password()
-    # init
-    with user.client.post("/auth/register-init",
-                          json={"pin_code": pin, "password": pw},
-                          catch_response=True) as init_resp:
-        if init_resp.status_code != 201:
-            init_resp.failure(f"Init failed: {init_resp.status_code}")
-            user.stop()
-            raise StopIteration
-        init_data = init_resp.json()
-        init_refresh_token = init_data["refresh_token"]
-    # accept
-    with user.client.post("/auth/register-accept",
-                          json={"refresh_token": init_refresh_token},
-                          catch_response=True) as accept_resp:
-        if accept_resp.status_code != 201:
-            accept_resp.failure(f"Accept failed: {accept_resp.status_code}")
-            user.stop()
-            raise StopIteration
-        accept_data = accept_resp.json()
-        access_token = accept_data["access_token"]
-        refresh_token = accept_data["refresh_token"]
-        payload = jwt.decode(access_token, options={"verify_signature": False})
-        user_id = int(payload["sub"])
-    return {
-        "user_id": user_id,
-        "password": pw,
-        "access_token": access_token,
-        "refresh_token": refresh_token,
-    }
+    def register_init_req(
+            self,
+            pin_code: str,
+            password: str,
+            prevent_failure: bool = False,
+    ) -> dict[str, int | str]:
+        with self.client.post(
+            "/auth/register-init",
+            json={"pin_code": pin_code, "password": password},
+            catch_response=True
+        ) as resp:
+            if resp.status_code == 201:
+                resp.success()
+                return {
+                    "status_code": resp.status_code,
+                    "password": password,
+                    "refresh_token": resp.json().get("refresh_token")
+                }
+            else:
+                if prevent_failure:
+                    resp.success()
+                else:
+                    resp.failure(f"Register init failed: {resp.status_code}")
+                return {
+                    "status_code": resp.status_code,
+                }
 
-# ---------------------------------------------------------------------------
-# Сценарий 1: только регистрация
-# ---------------------------------------------------------------------------
+    def register_accept_req(
+            self,
+            refresh_token: str,
+            prevent_failure: bool = False,
+            prevent_statuses_failure: tuple[int, ...] = (),
+    ) -> dict[str, int | str]:
+        with self.client.post(
+            "/auth/register-accept",
+            json={"refresh_token": refresh_token},
+            catch_response=True
+        ) as resp:
+            if resp.status_code == 201:
+                resp.success()
+                return {
+                    "status_code": resp.status_code,
+                    "access_token": resp.json().get("access_token"),
+                    "refresh_token": resp.json().get("refresh_token"),
+                }
+            else:
+                if prevent_failure or resp.status_code in prevent_statuses_failure:
+                    resp.success()
+                else:
+                    resp.failure(f"Register accept failed: {resp.status_code}")
+                return {
+                    "status_code": resp.status_code,
+                }
+
+    def login_init_req(
+            self,
+            user_id: int,
+            password: str,
+            prevent_failure: bool = False,
+            prevent_statuses_failure: tuple[int, ...] = (),
+    ) -> dict[str, int | str] | None:
+        with self.client.post(
+            "/auth/login-init",
+            json={"user_id": user_id, "password": password},
+            catch_response=True
+        ) as resp:
+            if resp.status_code == 200:
+                resp.success()
+                return {
+                    "status_code": resp.status_code,
+                    "refresh_token": resp.json().get("refresh_token"),
+                    "challenge": resp.json().get("challenge"),
+                }
+            else:
+                if prevent_failure or resp.status_code in prevent_statuses_failure:
+                    resp.success()
+                else:
+                    resp.failure(f"Login init failed: {resp.status_code}")
+                return {
+                    "status_code": resp.status_code,
+                }
+
+    def login_accept_req(
+            self,
+            refresh_token: str,
+            otp: str,
+            prevent_failure: bool = False,
+            prevent_statuses_failure: tuple[int, ...] = (),
+    ) -> dict[str, int | str]:
+        with self.client.post(
+            "/auth/login-accept",
+            json={"refresh_token": refresh_token, "otp": otp},
+            catch_response=True
+        ) as resp:
+            if resp.status_code == 200:
+                resp.success()
+                return {
+                    "status_code": resp.status_code,
+                    "access_token": resp.json().get("access_token"),
+                    "refresh_token": resp.json().get("refresh_token"),
+                }
+            else:
+                if prevent_failure or resp.status_code in prevent_statuses_failure:
+                    resp.success()
+                else:
+                    resp.failure(f"Login accept failed: {resp.status_code}")
+                return {
+                    "status_code": resp.status_code
+                }
+
+    def get_id_req(
+            self,
+            access_token: str,
+            prevent_failure: bool = False,
+            prevent_statuses_failure: tuple[int, ...] = (),
+    ) -> dict[str, int]:
+        with self.client.get(
+            "/auth/validate-access-token",
+            headers={"Authorization": f"Bearer {access_token}"},
+            catch_response=True,
+        ) as resp:
+            if resp.status_code == 200:
+                resp.success()
+                return {
+                    "status_code": resp.status_code,
+                    "user_id": int(resp.json().get("user_id")),
+                }
+            else:
+                if prevent_failure or resp.status_code in prevent_statuses_failure:
+                    resp.success()
+                else:
+                    resp.failure(f"Failed get id by access-token: {resp.status_code}")
+                return {
+                    "status_code": resp.status_code,
+                }
+
+    def get_refreshed_access_token_req(
+            self,
+            refresh_token: str,
+            prevent_failure: bool = False,
+            prevent_statuses_failure: tuple[int, ...] = (),
+    ) -> dict[str, int | str]:
+        with self.client.post(
+            "/auth/refresh",
+            json={"refresh_token": refresh_token},
+            catch_response=True,
+        ) as resp:
+            if resp.status_code == 200:
+                resp.success()
+                return {
+                    "status_code": resp.status_code,
+                    "access_token": resp.json().get("access_token"),
+                }
+            else:
+                if prevent_failure or resp.status_code in prevent_statuses_failure:
+                    resp.success()
+                else:
+                    resp.failure(f"Failed refresh access-token: {resp.status_code}")
+                return {
+                    "status_code": resp.status_code,
+                }
+
+    def logout_req(self, refresh_token: str, prevent_failure: bool = False) -> dict[str, bool | int]:
+        with self.client.delete(
+            "/auth/logout",
+            json={"refresh_token": refresh_token},
+            catch_response=True,
+        ) as resp:
+            if resp.status_code == 204 or prevent_failure:
+                resp.success()
+            else:
+                resp.failure(f"Failed logout: {resp.status_code}")
+            return {
+                "status_code": resp.status_code,
+            }
+
+    def register(self, task: Callable, sleep_s: float = None) -> dict[str, str]:
+        pin_code = self.generate_pin_code()
+        password = self.generate_password()
+        resp = self.register_init_req(pin_code, password)
+        if resp["status_code"] != 201:
+            Helper.raise_task_assertion_error(task, "register init", resp["status_code"])
+        if sleep_s is not None:
+            time.sleep(sleep_s)
+        resp = self.register_accept_req(resp["refresh_token"])
+        if resp["status_code"] != 201:
+            Helper.raise_task_assertion_error(task, "register accept", resp["status_code"])
+        return {
+            "password": password,
+            "access_token": resp["access_token"],
+            "refresh_token": resp["refresh_token"]
+        }
+
+    def login(
+            self,
+            user_id: int,
+            password: str,
+            task: Callable,
+            sleep_s: float = None,
+            prevent_failure: bool = False,
+            prevent_wrong_user_id_failure: bool = False,
+            prevent_wrong_password_failure: bool = False,
+            prevent_wrong_otp_failure: bool = False,
+            prevent_banned_user_failure: bool = False,
+    ) -> dict[str, str] | None:
+        allowed_failures = []
+        if prevent_wrong_user_id_failure:
+            allowed_failures.append(404)
+        if prevent_banned_user_failure:
+            allowed_failures.append(403)
+        if prevent_wrong_password_failure:
+            allowed_failures.append(401)
+        resp = self.login_init_req(user_id, password, prevent_failure, tuple(allowed_failures))
+        if resp["status_code"] != 200:
+            if not prevent_failure and resp["status_code"] not in allowed_failures:
+                Helper.raise_task_assertion_error(task, "login init", resp["status_code"])
+            return None
+        if sleep_s is not None:
+            time.sleep(sleep_s)
+        allowed_failures = []
+        if prevent_banned_user_failure:
+            allowed_failures.append(403)
+        if prevent_wrong_otp_failure:
+            allowed_failures.append(401)
+        resp = self.login_accept_req(
+            resp["refresh_token"],
+            self.make_fake_otp(),
+            prevent_failure,
+            tuple(allowed_failures)
+        )
+        if resp["status_code"] != 201:
+            if not prevent_failure and resp["status_code"] not in allowed_failures:
+                Helper.raise_task_assertion_error(task, "login accept", resp["status_code"])
+            return None
+        return {
+            "access_token": resp["access_token"],
+            "refresh_token": resp["refresh_token"]
+        }
+
+    def register_and_get_id(self, task: Callable, sleep_s: float = None) -> dict[str, int | str]:
+        user_data: dict[str, int | str] = self.register(task, sleep_s)
+        if sleep_s is not None:
+            time.sleep(sleep_s)
+        resp = self.get_id_req(user_data["access_token"])
+        if resp["status_code"] != 200:
+            Helper.raise_task_assertion_error(task, "validate access-token", resp["status_code"])
+        user_data["user_id"] = resp["user_id"]
+        return user_data
+
+    def logout(
+            self,
+            refresh_token: str,
+            task: Callable,
+            prevent_failure: bool = False,
+    ):
+        user_data = self.logout_req(refresh_token, prevent_failure)
+        if not prevent_failure and user_data["status_code"] != 204:
+            Helper.raise_task_assertion_error(task, "logout", user_data["status_code"])
+
+    @staticmethod
+    def raise_task_assertion_error(task: Callable, failed_step: str = None, failed_code: int = None):
+        failed_step = f": step '{failed_step}' - {failed_code}" if failed_step is not None else ""
+        raise AssertionError(f"Failed task '{task.__name__}'{failed_step}")
+
+    @staticmethod
+    def generate_pin_code() -> str:
+        random_bytes = secrets.token_bytes(6)
+        return base64.urlsafe_b64encode(random_bytes).decode('utf-8').rstrip('=')
+
+    @staticmethod
+    def generate_password() -> str:
+        return secrets.token_hex(8)
+
+    @staticmethod
+    def make_fake_otp() -> str:
+        return base64.b64encode(b"wrong_otp_123456").decode()
+
+    @staticmethod
+    def make_fake_jwt() -> str:
+        return "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+
 class RegisterUser(HttpUser):
-    wait_time = between(1, 2)
-
-    @task
-    def register(self):
-        try:
-            register_and_get_tokens(self)
-        except StopIteration:
-            return
-        self.stop()
-
-# ---------------------------------------------------------------------------
-# Сценарий 2: успешный вход по паролю + неверный OTP
-# ---------------------------------------------------------------------------
-class LoginFailUser(HttpUser):
-    wait_time = between(1, 2)
-
-    user_id: int = 0
-    password: str = ""
-    failures: int = 0
+    helper: Helper
+    host = BASE_URL
+    wait_time = WAIT_TIME
+    weight = 1
 
     def on_start(self):
-        try:
-            tokens = register_and_get_tokens(self)
-        except StopIteration:
-            return
-        self.user_id = tokens["user_id"]
-        self.password = tokens["password"]
-        self.failures = 0
+        self.helper = Helper(self.client)
 
-    @task
-    def login_with_wrong_otp(self):
-        if self.failures > 3:
-            self.stop()
-            return
-        with self.client.post("/auth/login-init",
-                              json={"user_id": self.user_id, "password": self.password},
-                              catch_response=True) as init_resp:
-            if init_resp.status_code == 200:
-                token = init_resp.json()["refresh_token"]
-                fake_otp = make_fake_otp()
-                with self.client.post("/auth/login-accept",
-                                      json={"refresh_token": token, "otp": fake_otp},
-                                      catch_response=True) as accept_resp:
-                    if accept_resp.status_code == 401:
-                        accept_resp.success()
-                        self.failures += 1
-                    elif accept_resp.status_code == 403:
-                        accept_resp.success()
-                        self.stop()
-                    else:
-                        accept_resp.failure(f"Unexpected status: {accept_resp.status_code}")
-            else:
-                init_resp.failure(f"Login init failed: {init_resp.status_code}")
-                self.stop()
+    @task(1)
+    def task_register(self):
+        self.helper.register(self.task_register, sleep_s=1)
 
-# ---------------------------------------------------------------------------
-# Сценарий 3: валидация access-токена
-# ---------------------------------------------------------------------------
-class TokenValidateUser(HttpUser):
-    wait_time = between(1, 3)
-    access_token: str = ""
+
+class AccessTokenValidateUser(HttpUser):
+    helper: Helper
+    host = BASE_URL
+    wait_time = WAIT_TIME
+    weight = 10
 
     def on_start(self):
-        try:
-            tokens = register_and_get_tokens(self)
-        except StopIteration:
-            return
-        self.access_token = tokens["access_token"]
+        self.helper = Helper(self.client)
 
-    @task
-    def validate_token(self):
-        with self.client.get("/auth/validate-access-token",
-                             headers={"Authorization": f"Bearer {self.access_token}"},
-                             catch_response=True) as resp:
-            if resp.status_code == 200:
-                resp.success()
-            else:
-                resp.failure(f"Validation failed: {resp.status_code}")
+    def loop(
+            self,
+            access_token: str,
+            task: Callable,
+            iterations: int = JWT_VALIDATE_ITERATIONS
+    ):
+        if not isinstance(iterations, int) or iterations < 0:
+            raise ValueError(f"Invalid 'iterations': expected not negative 'int', got {repr(iterations)}")
+        while iterations > 0:
+            iterations -= 1
+            time.sleep(0.5)
+            resp = self.helper.get_id_req(access_token, prevent_statuses_failure=(401,))
+            if resp["status_code"] not in (200, 401):
+                Helper.raise_task_assertion_error(
+                    task,
+                    f"validate access-token: {resp['status_code']}",
+                    resp["status_code"]
+                )
 
-# ---------------------------------------------------------------------------
-# Сценарий 4: обновление refresh-токена
-# ---------------------------------------------------------------------------
+    @task(10)
+    def task_validate_valid(self):
+        user_data = self.helper.register(self.task_validate_valid)
+        self.loop(user_data["access_token"], self.task_validate_valid)
+
+    @task(2)
+    def task_validate_expired(self):
+        user_data = self.helper.register(self.task_validate_expired)
+        time.sleep(JWT_EXPIRE_SECONDS)
+        self.loop(user_data["access_token"], self.task_validate_expired)
+
+    @task(1)
+    def task_validate_invalid(self):
+        access_token = self.helper.make_fake_jwt()
+        self.loop(access_token, self.task_validate_invalid)
+
+
 class RefreshUser(HttpUser):
-    wait_time = between(5, 10)
-    accept_refresh_token: str = ""
+    helper: Helper
+    host = BASE_URL
+    wait_time = WAIT_TIME
+    weight = 3
 
     def on_start(self):
-        try:
-            tokens = register_and_get_tokens(self)
-        except StopIteration:
-            return
-        self.accept_refresh_token = tokens["refresh_token"]
+        self.helper = Helper(self.client)
 
-    @task
-    def refresh_token(self):
-        with self.client.post("/auth/refresh",
-                              json={"refresh_token": self.accept_refresh_token},
-                              catch_response=True) as resp:
-            if resp.status_code == 200:
-                resp.success()
-            else:
-                resp.failure(f"Refresh failed: {resp.status_code}")
+    def loop(
+            self,
+            refresh_token: str,
+            task: Callable,
+            iterations: int = JWT_REFRESH_ITERATIONS
+    ):
+        if not isinstance(iterations, int) or iterations < 0:
+            raise ValueError(f"Invalid 'iterations': expected not negative 'int', got {repr(iterations)}")
+        while iterations > 0:
+            iterations -= 1
+            time.sleep(0.5)
+            resp = self.helper.get_refreshed_access_token_req(
+                refresh_token,
+                prevent_statuses_failure=(401,)
+            )
+            if resp["status_code"] not in (200, 401):
+                Helper.raise_task_assertion_error(
+                    task,
+                    f"refresh access-token: {resp['status_code']}",
+                    resp["status_code"]
+                )
 
-# ---------------------------------------------------------------------------
-# Сценарий 5: выход (logout)
-# ---------------------------------------------------------------------------
-class LogoutUser(HttpUser):
-    wait_time = between(1, 2)
-    accept_refresh_token: str = ""
+    @task(8)
+    def task_refresh_valid(self):
+        user_data = self.helper.register(self.task_refresh_valid)
+        self.loop(user_data["refresh_token"], self.task_refresh_valid)
+
+    @task(2)
+    def task_refresh_expired(self):
+        user_data = self.helper.register(self.task_refresh_expired)
+        time.sleep(REFRESH_TOKEN_EXPIRE_SECONDS)
+        self.loop(user_data["refresh_token"], self.task_refresh_expired)
+
+    @task(1)
+    def task_refresh_revoked(self):
+        user_data = self.helper.register(self.task_refresh_revoked)
+        self.helper.logout(user_data["refresh_token"], self.task_refresh_revoked)
+        self.loop(user_data["refresh_token"], self.task_refresh_revoked)
+
+    @task(1)
+    def task_refresh_invalid(self):
+        refresh_token = "fake_refresh_token"
+        self.loop(refresh_token, self.task_refresh_invalid)
+
+
+class LoginUser(HttpUser):
+    helper: Helper
+    host = BASE_URL
+    wait_time = WAIT_TIME
+    weight = 5
 
     def on_start(self):
-        try:
-            tokens = register_and_get_tokens(self)
-        except StopIteration:
-            return
-        self.accept_refresh_token = tokens["refresh_token"]
+        self.helper = Helper(self.client)
 
-    @task
-    def logout(self):
-        with self.client.request("DELETE", "/auth/logout",
-                                 json={"refresh_token": self.accept_refresh_token},
-                                 catch_response=True) as resp:
-            if resp.status_code == 204:
-                resp.success()
-            else:
-                resp.failure(f"Logout failed: {resp.status_code}")
-        self.stop()
+    def loop(
+            self,
+            user_id: int,
+            password: str,
+            task: Callable,
+            iterations: int = LOGIN_ITERATIONS,
+            prevent_failure: bool = False,
+            allow_wrong_user_id: bool = False,
+            allow_banned_user: bool = False,
+            allow_wrong_password: bool = False,
+            allow_wrong_otp: bool = False,
+    ):
+        if not isinstance(iterations, int) or iterations < 0:
+            raise ValueError(f"Invalid 'iterations': expected not negative 'int', got {repr(iterations)}")
+        sleep_s = 0.5
+        while iterations > 0:
+            iterations -= 1
+            time.sleep(sleep_s)
+            self.helper.login(
+                user_id,
+                password,
+                task,
+                sleep_s,
+                prevent_failure,
+                allow_wrong_user_id,
+                allow_wrong_password,
+                allow_wrong_otp,
+                allow_banned_user,
+            )
+
+    @task(1)
+    def task_wrong_user_id(self):
+        self.loop(
+            user_id=0,
+            password="fake_password",
+            task=self.task_wrong_user_id,
+            allow_wrong_user_id=True,
+        )
+
+    @task(1)
+    def task_banned_user(self):
+        user_data = self.helper.register_and_get_id(self.task_banned_user)
+        self.loop(
+            user_id=user_data["user_id"],
+            password=user_data['password'],
+            task=self.task_banned_user,
+            iterations=LOGIN_FAULT_LIMIT + 1,
+            prevent_failure=True,
+        )
+        self.loop(
+            user_id=user_data["user_id"],
+            password=user_data['password'],
+            task=self.task_banned_user,
+            allow_wrong_otp=True,
+            allow_banned_user=True,
+        )
+
+    @task(3)
+    def task_wrong_password(self):
+        user_data = self.helper.register_and_get_id(self.task_wrong_password)
+        self.loop(
+            user_id=user_data["user_id"],
+            password=f"{user_data['password']}_fake",
+            task=self.task_wrong_password,
+            allow_wrong_password=True,
+            allow_banned_user=True,
+        )
+
+    @task(2)
+    def task_wrong_otp(self):
+        user_data = self.helper.register_and_get_id(self.task_wrong_otp)
+        self.loop(
+            user_id=user_data["user_id"],
+            password=user_data['password'],
+            task=self.task_wrong_otp,
+            allow_wrong_otp=True,
+            allow_banned_user=True,
+        )

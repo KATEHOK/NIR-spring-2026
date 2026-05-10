@@ -1,0 +1,6 @@
+Method,Name,Error,Occurrences
+POST,/auth/login-init,CatchResponseError('Login init failed: 500'),5
+POST,/auth/login-accept,CatchResponseError('Login accept failed: 500'),2
+POST,/auth/register-accept,CatchResponseError('Register accept failed: 500'),7
+POST,/auth/refresh,CatchResponseError('Failed refresh access-token: 500'),5
+POST,/auth/register-init,CatchResponseError('Register init failed: 500'),6

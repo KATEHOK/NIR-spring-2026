@@ -1,3 +1,0 @@
-Method,Name,Error,Occurrences
-POST,/auth/refresh,CatchResponseError('Refresh failed: 0'),5
-POST,/auth/login-init,CatchResponseError('Login init failed: 403'),5
