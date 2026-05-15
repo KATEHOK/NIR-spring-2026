@@ -1,6 +1,7 @@
 from fastapi import APIRouter, status, Depends
+from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
-from src.dependencies import get_db, get_user_id_from_access_token_header
+from src.dependencies import get_redis, get_db, validate_rid_and_get_sub_from_security_header
 from src.schemas import RegisterSchemas, LoginSchemas, RefreshSchema, LogoutSchema
 from src.services import RegisterService, LoginService, TokenService, SystemService
 
@@ -12,6 +13,19 @@ auth_router = APIRouter(prefix="/auth", tags=["Auth"])
 async def get_hello():
     """Приветственное сообщение"""
     return await SystemService.get_hello()
+
+
+@auth_router.get("/redis-test", status_code=status.HTTP_200_OK, summary="Test Redis connectivity")
+async def redis_test(redis: Redis = Depends(get_redis)):
+    """Проверка работы Redis: запись и чтение ключа"""
+    test_key = "test:connection"
+    test_value = b"ok"
+    await redis.set(test_key, test_value)
+    stored = await redis.get(test_key)
+    return {
+        "status": "ok",
+        "value": stored.decode() if stored else None
+    }
 
 
 @auth_router.get("/touch-db", status_code=status.HTTP_200_OK, summary="Hello-message")
@@ -27,7 +41,9 @@ async def get_public_key():
 
 
 @auth_router.get("/validate-access-token", status_code=status.HTTP_200_OK, summary="Validate access-token")
-async def validate_access_token(user_id: int = Depends(get_user_id_from_access_token_header)):
+async def validate_access_token(
+        user_id: int = Depends(validate_rid_and_get_sub_from_security_header)
+):
     """Проверка корректности access-токена"""
     return {"valid": True, "user_id": user_id}
 
@@ -80,7 +96,8 @@ async def refresh(
 @auth_router.delete("/logout", status_code=status.HTTP_204_NO_CONTENT, summary="Logout user")
 async def logout(
         data: LogoutSchema.Req,
-        session: AsyncSession = Depends(get_db)
+        session: AsyncSession = Depends(get_db),
+        redis: Redis = Depends(get_redis),
 ) -> None:
     """Выход пользователя (по refresh-токену)"""
-    return await TokenService.logout(data.refresh_token, session)
+    return await TokenService.logout(data.refresh_token, session, redis)

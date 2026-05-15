@@ -67,7 +67,7 @@ class JWT:
         now_aware = datetime_utcnow(False)
         payload = {
             "sub": str(user_id),
-            "refresh_id": str(refresh_token_id),
+            "rid": str(refresh_token_id),
             "iat": int(now_aware.timestamp()),
             "exp": int((now_aware + timedelta(minutes=cls.access_token_expire_minutes)).timestamp()),
             "type": "access"

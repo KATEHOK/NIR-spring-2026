@@ -15,11 +15,16 @@ def read_secret(env_var_name: str) -> str:
 
 class Settings:
     def __init__(self):
+        # Сервисные
+        self.LOGGER_NAME: str = "auth_server"
+
         # Секреты
+        self.REDIS_PASSWORD: str = read_secret("REDIS_PASSWORD_FILE")
         self.DB_PASSWORD: str = read_secret("DB_PASSWORD_FILE")
         self.SECRET_KEY: str = read_secret("SECRET_KEY_FILE")
 
         # Секреты (временно)
+        # self.REDIS_PASSWORD: str = "secret"
         # self.DB_PASSWORD: str = "secret"
         # self.SECRET_KEY: str = "secret"
 
@@ -47,6 +52,19 @@ class Settings:
         self.ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
         self.REFRESH_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("REFRESH_TOKEN_EXPIRE_MINUTES"))
         self.FAST_REFRESH_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("FAST_REFRESH_TOKEN_EXPIRE_MINUTES"))
+
+        # Redis
+        self.REDIS_HOST: str = os.getenv("REDIS_HOST")
+        self.REDIS_PORT: str = os.getenv("REDIS_PORT")
+        self.REDIS_DB: str = os.getenv("REDIS_DB")
+        self.REDIS_MAX_CONNECTIONS: int = int(os.getenv("REDIS_MAX_CONNECTIONS"))
+        self.REDIS_SOCKET_TIMEOUT: int = int(os.getenv("REDIS_SOCKET_TIMEOUT"))
+        self.REDIS_SOCKET_CONNECT_TIMEOUT: int = int(os.getenv("REDIS_SOCKET_CONNECT_TIMEOUT"))
+
+    @property
+    def REDIS_URL(self) -> str:
+        """Строка подключения к редис"""
+        return f"redis://:{self.REDIS_PASSWORD}@{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"
 
     @property
     def ASYNC_DATABASE_URL(self) -> str:

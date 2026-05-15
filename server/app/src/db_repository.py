@@ -13,11 +13,16 @@ class AsyncAuthRepo:
         return result.scalar()
 
     @staticmethod
-    async def revoke_refresh_token(token: str, session: AsyncSession) -> bool:
+    async def revoke_refresh_token(token: str, session: AsyncSession) -> int | None:
         """Отзывает refresh-токен"""
-        stmt = update(RefreshTokenModel).where(RefreshTokenModel.token == token).values(revoked=True)
+        stmt = (
+            update(RefreshTokenModel)
+            .where(RefreshTokenModel.token == token)
+            .values(revoked=True)
+            .returning(RefreshTokenModel.id)
+        )
         result = await session.execute(stmt)
-        return result.rowcount > 0 # noqa
+        return result.scalar_one_or_none()
 
     @staticmethod
     async def select_user(user_id: int, session: AsyncSession) -> UserModel | None:

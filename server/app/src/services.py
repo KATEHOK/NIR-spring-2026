@@ -2,17 +2,19 @@ import base64
 import logging
 from datetime import timedelta
 from fastapi import HTTPException, status
+from redis.asyncio import Redis
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.config import settings
 from src.crypt import Password, JWT, SymmetricEncryption, Random
 from src.utils import datetime_utcnow, timestamp_utcnow
-from src.repository import AsyncAuthRepo
+from src.db_repository import AsyncAuthRepo as DBRepo
+from src.redis_repository import AsyncAuthRepo as RedisRepo
 from src.schemas import RefreshSchema, RegisterSchemas, LoginSchemas
 from src.models import RefreshTokenModel, UserModel
 
 
-logger = logging.getLogger("auth_server")
+logger = logging.getLogger(settings.LOGGER_NAME)
 
 
 class SystemService:
@@ -26,7 +28,7 @@ class SystemService:
     @staticmethod
     async def touch_db(session: AsyncSession):
         """Приветственное сообщение из БД"""
-        return {"msg": await AsyncAuthRepo.select_hello(session)}
+        return {"msg": await DBRepo.select_hello(session)}
 
     @staticmethod
     async def get_public_key():
@@ -49,7 +51,7 @@ class RegisterService:
         """Инициализация регистрации пользователя"""
         hashed_password = await Password.async_hash(password)
         key_part, key = await RegisterService.issue_key(pin_code)
-        user = await AsyncAuthRepo.add_user(hashed_password, key, session)
+        user = await DBRepo.add_user(hashed_password, key, session)
         token = await TokenService.set_refresh_token(user.id, accepted=False, fast=True, session=session)
         await session.commit()
         return RegisterSchemas.Init.Resp(refresh_token=token.token, key_part=key_part)
@@ -57,7 +59,7 @@ class RegisterService:
     @staticmethod
     async def accept(refresh_token: str, session: AsyncSession) -> RegisterSchemas.Accept.Resp:
         """Подтверждение регистрации"""
-        old_token: RefreshTokenModel = await AsyncAuthRepo.select_refresh_token(refresh_token, session)
+        old_token: RefreshTokenModel = await DBRepo.select_refresh_token(refresh_token, session)
         await TokenService.validate_refresh(
             old_token,
             require_not_expired=True,
@@ -65,7 +67,7 @@ class RegisterService:
             require_not_revoked=True
         )
         old_token.revoked = True
-        user: UserModel = await AsyncAuthRepo.select_user(old_token.user_id, session)
+        user: UserModel = await DBRepo.select_user(old_token.user_id, session)
         await UserService.validate(user, require_not_active=True)
         user.is_active = True
         new_token = await TokenService.set_refresh_token(user.id, accepted=True, fast=False, session=session)
@@ -117,7 +119,7 @@ class LoginService:
     async def handle_incorrect_otp(user: UserModel, detail: str, session: AsyncSession):
         """Обрабатывает ситуацию некорректного OTP (коммитит измененное число попыток)"""
         logger.info(f"Incorrect OTP for user_id={user.id}: {detail}")
-        await AsyncAuthRepo.increment_user_faults(
+        await DBRepo.increment_user_faults(
             user_id=user.id,
             last_fault_at=datetime_utcnow(),
             challenge=None if user.failed_login_count + 1 >= settings.FAULT_LIMIT else user.challenge,
@@ -129,7 +131,7 @@ class LoginService:
     @staticmethod
     async def init(user_id: int, password: str, session: AsyncSession) -> LoginSchemas.Init.Resp:
         """Инициализирует вход пользователя"""
-        user: UserModel = await AsyncAuthRepo.select_user(user_id, session)
+        user: UserModel = await DBRepo.select_user(user_id, session)
         await UserService.validate(
             user,
             require_active=True,
@@ -147,14 +149,14 @@ class LoginService:
 
     @staticmethod
     async def accept(refresh_token: str, otp: str, session: AsyncSession) -> LoginSchemas.Accept.Resp:
-        old_token: RefreshTokenModel = await AsyncAuthRepo.select_refresh_token(refresh_token, session)
+        old_token: RefreshTokenModel = await DBRepo.select_refresh_token(refresh_token, session)
         await TokenService.validate_refresh(
             old_token,
             require_not_expired=True,
             require_not_accepted=True,
             require_not_revoked=True
         )
-        user: UserModel = await AsyncAuthRepo.select_user(old_token.user_id, session)
+        user: UserModel = await DBRepo.select_user(old_token.user_id, session)
         await UserService.validate(
             user,
             require_active=True,
@@ -166,7 +168,7 @@ class LoginService:
         new_refresh = await TokenService.set_refresh_token(user.id, accepted=True, fast=False, session=session)
         new_access = JWT.issue_access_token(new_refresh.user_id, new_refresh.id)
         old_token.revoked = True
-        await AsyncAuthRepo.update_user_successful_logged_in(user.id, session)
+        await DBRepo.update_user_successful_logged_in(user.id, session)
         await session.commit()
         return LoginSchemas.Accept.Resp(
             refresh_token=new_refresh.token,
@@ -257,7 +259,7 @@ class TokenService:
         """Выпускает и добавляет в БД новый refresh-токен, обрабатывая нарушение уникальности (не выполняет коммит)"""
         refresh_token, refresh_token_exp = JWT.issue_refresh_token(fast)
         try:
-            new_token = await AsyncAuthRepo.add_refresh_token(
+            new_token = await DBRepo.add_refresh_token(
                 user_id=user_id,
                 token=refresh_token,
                 accepted=accepted,
@@ -271,7 +273,7 @@ class TokenService:
     @staticmethod
     async def refresh(refresh_token: str, session: AsyncSession) -> RefreshSchema.Resp:
         """Обновление токенов (пока что только access)"""
-        token: RefreshTokenModel = await AsyncAuthRepo.select_refresh_token(refresh_token, session)
+        token: RefreshTokenModel = await DBRepo.select_refresh_token(refresh_token, session)
         await TokenService.validate_refresh(
             token=token,
             require_not_expired=True,
@@ -284,9 +286,12 @@ class TokenService:
         )
 
     @staticmethod
-    async def logout(refresh_token: str, session: AsyncSession) -> None:
+    async def logout(refresh_token: str, session: AsyncSession, redis: Redis) -> None:
         """Выход пользователя"""
-        await AsyncAuthRepo.revoke_refresh_token(refresh_token, session)
+        revoked_token_id = await DBRepo.revoke_refresh_token(refresh_token, session)
+        if revoked_token_id is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Unknown token")
         await session.commit()
+        await RedisRepo.add_refresh_token_to_blacklist(revoked_token_id, redis)
         return None
 
