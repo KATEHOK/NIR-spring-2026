@@ -26,15 +26,8 @@ class UserModel(Base):
     __tablename__ = "users"
     id: Mapped[intpk]
     password: Mapped[bytes] = mapped_column(nullable=False)             # хэшируем на секретном ключе приложения
-
-    challenge: Mapped[bytes | None] = mapped_column(nullable=True)      # шифруем секретным ключом приложения
     key: Mapped[bytes] = mapped_column(nullable=False)                  # шифруем секретным ключом приложения
-
     login_count: Mapped[int] = mapped_column(default=0, nullable=False)
-    failed_login_count: Mapped[int] = mapped_column(default=0, nullable=False)
-    last_fault_at: Mapped[datetime | None] = mapped_column(nullable=True)
-
-    is_active: Mapped[bool] = mapped_column(default=False, nullable=False)
 
 
 class RefreshTokenModel(Base):
@@ -43,8 +36,6 @@ class RefreshTokenModel(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey(UserModel.id, ondelete="CASCADE"), nullable=False, index=True)
 
     token: Mapped[str] = mapped_column(unique=True, nullable=False)
-    accepted: Mapped[bool] = mapped_column(default=False, nullable=False)
-
     revoked: Mapped[bool] = mapped_column(default=False, nullable=False)
     expires_at: Mapped[datetime] = mapped_column(nullable=False)
 

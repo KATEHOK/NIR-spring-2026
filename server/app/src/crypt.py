@@ -49,7 +49,6 @@ class JWT:
     public_key: str = settings.JWT_PUBLIC_KEY
     access_token_expire_minutes: int = settings.ACCESS_TOKEN_EXPIRE_MINUTES
     refresh_token_expire_minutes: int = settings.REFRESH_TOKEN_EXPIRE_MINUTES
-    fast_refresh_token_expire_minutes: int = settings.FAST_REFRESH_TOKEN_EXPIRE_MINUTES
 
     @classmethod
     def encode(cls, payload: dict) -> str:
@@ -75,11 +74,9 @@ class JWT:
         return cls.encode(payload)
 
     @classmethod
-    def issue_refresh_token(cls, fast: bool = False) -> tuple[str, datetime]:
-        """Выпускает Refresh-токен (коротко или долгоживущий, вернет (token, exp))"""
-        now_naive = datetime_utcnow()
-        token_expire_minutes = cls.fast_refresh_token_expire_minutes if fast else cls.refresh_token_expire_minutes
-        return Random.urlsafe(32), now_naive + timedelta(minutes=token_expire_minutes)
+    def issue_refresh_token(cls) -> tuple[str, datetime]:
+        """Выпускает Refresh-токен (вернет (token, exp))"""
+        return Random.urlsafe(32), datetime_utcnow() + timedelta(minutes=cls.refresh_token_expire_minutes)
 
 
 class SymmetricEncryption:
@@ -129,11 +126,15 @@ class Random:
         """Генерирует случайную строку в формате base64 (URL-safe)."""
         return secrets.token_urlsafe(length)
 
-    @staticmethod
-    def base32(length: int = 16) -> str:
+    @classmethod
+    def base32(cls, length: int = 16) -> str:
         """
         Генерирует случайную строку в формате Base32 (без padding).
         По умолчанию length=16 байт -> 26 символов Base32.
         """
-        random_bytes = secrets.token_bytes(length)
+        random_bytes = cls.bytes(length)
         return base64.b32encode(random_bytes).decode('utf-8').rstrip('=')
+
+    @classmethod
+    def session_id(cls):
+        return cls.urlsafe(32)

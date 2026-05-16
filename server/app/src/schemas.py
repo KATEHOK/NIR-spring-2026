@@ -16,13 +16,13 @@ class RegisterSchemas:
 
         class Resp(BaseModel):
             """Выходные данные при инициализации регистрации пользователя"""
-            refresh_token: str
+            session_id: str
             key_part: str
 
     class Accept:
         class Req(BaseModel):
             """Входные данные при подтверждении регистрации пользователя"""
-            refresh_token: str
+            session_id: str
 
         class Resp(TokensPairSchema):
             """Выходные данные при подтверждении регистрации пользователя"""
@@ -37,13 +37,13 @@ class LoginSchemas:
 
         class Resp(BaseModel):
             """Выходные данные при инициализации входа пользователя"""
-            refresh_token: str
+            session_id: str
             challenge: str
 
     class Accept:
         class Req(BaseModel):
             """Входные данные при подтверждении входа пользователя"""
-            refresh_token: str
+            session_id: str
             otp: str
 
         class Resp(TokensPairSchema):

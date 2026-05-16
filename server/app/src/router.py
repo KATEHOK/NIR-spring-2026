@@ -51,46 +51,50 @@ async def validate_access_token(
 @auth_router.post("/register-init", status_code=status.HTTP_201_CREATED, summary="Init user register")
 async def register_init(
         data: RegisterSchemas.Init.Req,
-        session: AsyncSession = Depends(get_db)
+        redis: Redis = Depends(get_redis),
 ) -> RegisterSchemas.Init.Resp:
     """Инициализация регистрации пользователя"""
-    return await RegisterService.init(data.pin_code, data.password, session)
+    return await RegisterService.init(data.pin_code, data.password, redis)
 
 
 @auth_router.post("/register-accept", status_code=status.HTTP_201_CREATED, summary="Accept user register")
 async def register_accept(
         data: RegisterSchemas.Accept.Req,
-        session: AsyncSession = Depends(get_db)
+        session: AsyncSession = Depends(get_db),
+        redis: Redis = Depends(get_redis),
 ) -> RegisterSchemas.Accept.Resp:
     """Подтверждение регистрации пользователя"""
-    return await RegisterService.accept(data.refresh_token, session)
+    return await RegisterService.accept(data.session_id, session, redis)
 
 
 @auth_router.post("/login-init", status_code=status.HTTP_200_OK, summary="Init user login")
 async def login_init(
         data: LoginSchemas.Init.Req,
-        session: AsyncSession = Depends(get_db)
+        session: AsyncSession = Depends(get_db),
+        redis: Redis = Depends(get_redis),
 ) -> LoginSchemas.Init.Resp:
     """Инициализация входа пользователя"""
-    return await LoginService.init(data.user_id, data.password, session)
+    return await LoginService.init(data.user_id, data.password, session, redis)
 
 
 @auth_router.post("/login-accept", status_code=status.HTTP_200_OK, summary="Accept user login")
 async def login_accept(
         data: LoginSchemas.Accept.Req,
         session: AsyncSession = Depends(get_db),
+        redis: Redis = Depends(get_redis),
 ) -> LoginSchemas.Accept.Resp:
     """Подтверждение входа пользователя"""
-    return await LoginService.accept(data.refresh_token, data.otp, session)
+    return await LoginService.accept(data.session_id, data.otp, session, redis)
 
 
 @auth_router.post("/refresh", status_code=status.HTTP_200_OK, summary="Issue new access-token")
 async def refresh(
         data: RefreshSchema.Req,
-        session: AsyncSession = Depends(get_db)
+        session: AsyncSession = Depends(get_db),
+        redis: Redis = Depends(get_redis),
 ) -> RefreshSchema.Resp:
     """Выпуск нового access-токена"""
-    return await TokenService.refresh(data.refresh_token, session)
+    return await TokenService.refresh(data.refresh_token, session, redis)
 
 
 @auth_router.delete("/logout", status_code=status.HTTP_204_NO_CONTENT, summary="Logout user")
