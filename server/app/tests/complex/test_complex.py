@@ -15,6 +15,7 @@ BASE_URL = "http://localhost:8000"
 LABEL = os.getenv("SERVER_IMAGE_TAG")
 CSV_FILE = f"tests/complex/results_complex-{LABEL}.csv"
 
+SESSION_EXPIRE_MINUTES = int(os.getenv("SESSION_EXPIRE_MINUTES"))
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
 REFRESH_TOKEN_EXPIRE_MINUTES = int(os.getenv("REFRESH_TOKEN_EXPIRE_MINUTES"))
 
@@ -66,20 +67,20 @@ def register_user(client: httpx.Client, scenario: int) -> tuple[dict[str, Any], 
                        json={"pin_code": pin, "password": pw})
     assert resp.status_code == 201, f"Init failed: {resp.status_code}"
     init_data = resp.json()
-    refresh_token = init_data["refresh_token"]
+    session_id = init_data["session_id"]
     log_step("register-init", "201", e1, scenario=scenario)
 
     # register-accept
     resp, e2 = measure("register-accept", client, "POST", "/auth/register-accept",
-                       json={"refresh_token": refresh_token})
+                       json={"session_id": session_id})
     assert resp.status_code == 201, f"Accept failed: {resp.status_code}"
     accept_data = resp.json()
     access_token = accept_data["access_token"]
-    new_refresh = accept_data["refresh_token"]
+    refresh_token = accept_data["refresh_token"]
     log_step("register-accept", "201", e2, scenario=scenario)
 
     user_id = decode_user_id_from_access_token(access_token)
-    return {"user_id": user_id, "password": pw, "refresh_token": new_refresh, "access_token": access_token}, e1 + e2
+    return {"user_id": user_id, "password": pw, "refresh_token": refresh_token, "access_token": access_token}, e1 + e2
 
 # ---------------------------------------------------------------------------
 # Сценарий 1
@@ -249,7 +250,7 @@ def scenario3():
 
         resp, e = measure("login-init-wrong-uid", client, "POST", "/auth/login-init",
                           json={"user_id": uid + 1, "password": pw})
-        assert resp.status_code in (404, 401), f"Unexpected status {resp.status_code}"
+        assert resp.status_code == 404, f"Unexpected status {resp.status_code}"
         log_step("login-init-wrong-uid", str(resp.status_code), e, scenario=scenario)
         total_elapsed_ms += e
 

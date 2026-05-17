@@ -31,5 +31,12 @@ Vagrant.configure("2") do |config|
     sudo sh get-docker.sh
     sudo groupadd docker
     sudo usermod -aG docker vagrant
+
+    # Сетевые настройки ядра для нагрузочных тестов
+    sudo tee /etc/sysctl.d/99-nir.conf > /dev/null <<EOF
+net.core.somaxconn = 4096
+net.ipv4.tcp_max_syn_backlog = 8192
+EOF
+    sudo sysctl --system
   SHELL
 end

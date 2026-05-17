@@ -95,14 +95,13 @@ class LoginService:
         )
 
     @staticmethod
-    async def verify_otp(user: UserModel, encrypted_challenge: bytes, encrypted_otp: bytes) -> bool:
+    async def verify_otp(user: UserModel, encrypted_challenge: bytes, encrypted_otp: str) -> bool:
         """
-        Проверяет OTP:
-        otp = {challenge_random}:{login_count}
+        Проверяет OTP: otp = {challenge_random}:{login_count}
         """
         try:
             user_key = SymmetricEncryption.decrypt(user.key)
-            otp = SymmetricEncryption.decrypt(encrypted_otp, user_key).decode('utf-8')
+            otp = SymmetricEncryption.decrypt(base64.b64decode(encrypted_otp), user_key).decode('utf-8')
             if ":" not in otp:
                 raise ValueError("Invalid OTP format")
             i = otp.index(":")
@@ -149,7 +148,7 @@ class LoginService:
         user: UserModel = await DBRepo.select_user(saved_data["user_id"], session)
         if user is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-        if not await LoginService.verify_otp(user, saved_data["challenge"], base64.b64decode(otp)):
+        if not await LoginService.verify_otp(user, saved_data["challenge"], otp):
             faults = await RedisRepo.incr_user_faults(user.id, redis)
             if faults >= settings.FAULTS_LIMIT:
                 await RedisRepo.ban_user(user.id, redis)
