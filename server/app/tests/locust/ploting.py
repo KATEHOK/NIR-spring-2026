@@ -2,11 +2,13 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import os
 import re
+from dotenv import load_dotenv
+
+load_dotenv()
 
 MIN_USERS = 40
-MAX_USERS = 800
-# IMAGE_TAG = "nir-2026-05-08"
-IMAGE_TAG = "23e6bbd"
+MAX_USERS = 1200
+IMAGE_TAG = os.getenv("SERVER_IMAGE_TAG", "unknown")
 BASE_DIR = "tests/locust/results"
 RESULTS_DIR = f"{BASE_DIR}/{IMAGE_TAG}"
 IN_DIR = f"{RESULTS_DIR}/csv"

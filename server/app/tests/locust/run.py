@@ -11,12 +11,12 @@ if __name__ == "__main__":
     csv_dir = f"{results_dir}/csv"
     html_dir = f"{results_dir}/html"
     sleep_s = 60
-    users_start = 400
-    users_stop = 400 + 1
+    users_start = 840
+    users_stop = 1200 + 1
     users_step = 40
     host = "http://localhost:8000"
     spawn_rate = "100"
-    run_time = "1m"
+    run_time = "10m"
     os.makedirs(csv_dir, exist_ok=True)
     os.makedirs(html_dir, exist_ok=True)
     for users in range(users_start, users_stop, users_step):

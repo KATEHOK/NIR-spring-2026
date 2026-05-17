@@ -1,0 +1,711 @@
+Count,Message,Traceback,Nodes
+265,Failed task 'task_refresh_valid': step 'register init' - 0,"  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 363, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 396, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 513, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 399, in task_refresh_valid
+    user_data = self.helper.register(self.task_refresh_valid)
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 207, in register
+    Helper.raise_task_assertion_error(task, ""register init"", resp[""status_code""])
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 288, in raise_task_assertion_error
+    raise AssertionError(f""Failed task '{task.__name__}'{failed_step}"")
+",local
+353,Failed task 'task_wrong_password': step 'register init' - 0,"  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 363, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 396, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 513, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 488, in task_wrong_password
+    user_data = self.helper.register_and_get_id(self.task_wrong_password)
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 266, in register_and_get_id
+    user_data: dict[str, int | str] = self.register(task, sleep_s)
+                                      ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 207, in register
+    Helper.raise_task_assertion_error(task, ""register init"", resp[""status_code""])
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 288, in raise_task_assertion_error
+    raise AssertionError(f""Failed task '{task.__name__}'{failed_step}"")
+",local
+990,Failed task 'task_validate_valid': step 'register accept' - 500,"  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 363, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 396, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 513, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 351, in task_validate_valid
+    user_data = self.helper.register(self.task_validate_valid)
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 212, in register
+    Helper.raise_task_assertion_error(task, ""register accept"", resp[""status_code""])
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 288, in raise_task_assertion_error
+    raise AssertionError(f""Failed task '{task.__name__}'{failed_step}"")
+",local
+211,Failed task 'task_refresh_valid': step 'register accept' - 500,"  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 363, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 396, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 513, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 399, in task_refresh_valid
+    user_data = self.helper.register(self.task_refresh_valid)
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 212, in register
+    Helper.raise_task_assertion_error(task, ""register accept"", resp[""status_code""])
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 288, in raise_task_assertion_error
+    raise AssertionError(f""Failed task '{task.__name__}'{failed_step}"")
+",local
+51,Failed task 'task_refresh_expired': step 'register accept' - 500,"  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 363, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 396, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 513, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 404, in task_refresh_expired
+    user_data = self.helper.register(self.task_refresh_expired)
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 212, in register
+    Helper.raise_task_assertion_error(task, ""register accept"", resp[""status_code""])
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 288, in raise_task_assertion_error
+    raise AssertionError(f""Failed task '{task.__name__}'{failed_step}"")
+",local
+189,Failed task 'task_validate_expired': step 'register accept' - 500,"  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 363, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 396, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 513, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 356, in task_validate_expired
+    user_data = self.helper.register(self.task_validate_expired)
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 212, in register
+    Helper.raise_task_assertion_error(task, ""register accept"", resp[""status_code""])
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 288, in raise_task_assertion_error
+    raise AssertionError(f""Failed task '{task.__name__}'{failed_step}"")
+",local
+117,Failed task 'task_wrong_password': step 'login init' - 500,"  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 363, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 396, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 513, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 489, in task_wrong_password
+    self.loop(
+    ~~~~~~~~~^
+        user_id=user_data[""user_id""],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        allow_banned_user=True,
+        ^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 447, in loop
+    self.helper.login(
+    ~~~~~~~~~~~~~~~~~^
+        user_id,
+        ^^^^^^^^
+    ...<7 lines>...
+        allow_banned_user,
+        ^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 241, in login
+    Helper.raise_task_assertion_error(task, ""login init"", resp[""status_code""])
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 288, in raise_task_assertion_error
+    raise AssertionError(f""Failed task '{task.__name__}'{failed_step}"")
+",local
+71,Failed task 'task_banned_user': step 'register accept' - 500,"  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 363, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 396, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 513, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 470, in task_banned_user
+    user_data = self.helper.register_and_get_id(self.task_banned_user)
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 266, in register_and_get_id
+    user_data: dict[str, int | str] = self.register(task, sleep_s)
+                                      ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 212, in register
+    Helper.raise_task_assertion_error(task, ""register accept"", resp[""status_code""])
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 288, in raise_task_assertion_error
+    raise AssertionError(f""Failed task '{task.__name__}'{failed_step}"")
+",local
+146,Failed task 'task_wrong_otp': step 'register accept' - 500,"  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 363, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 396, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 513, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 499, in task_wrong_otp
+    user_data = self.helper.register_and_get_id(self.task_wrong_otp)
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 266, in register_and_get_id
+    user_data: dict[str, int | str] = self.register(task, sleep_s)
+                                      ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 212, in register
+    Helper.raise_task_assertion_error(task, ""register accept"", resp[""status_code""])
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 288, in raise_task_assertion_error
+    raise AssertionError(f""Failed task '{task.__name__}'{failed_step}"")
+",local
+209,Failed task 'task_wrong_otp': step 'register init' - 0,"  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 363, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 396, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 513, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 499, in task_wrong_otp
+    user_data = self.helper.register_and_get_id(self.task_wrong_otp)
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 266, in register_and_get_id
+    user_data: dict[str, int | str] = self.register(task, sleep_s)
+                                      ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 207, in register
+    Helper.raise_task_assertion_error(task, ""register init"", resp[""status_code""])
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 288, in raise_task_assertion_error
+    raise AssertionError(f""Failed task '{task.__name__}'{failed_step}"")
+",local
+98,Failed task 'task_banned_user': step 'register init' - 0,"  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 363, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 396, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 513, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 470, in task_banned_user
+    user_data = self.helper.register_and_get_id(self.task_banned_user)
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 266, in register_and_get_id
+    user_data: dict[str, int | str] = self.register(task, sleep_s)
+                                      ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 207, in register
+    Helper.raise_task_assertion_error(task, ""register init"", resp[""status_code""])
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 288, in raise_task_assertion_error
+    raise AssertionError(f""Failed task '{task.__name__}'{failed_step}"")
+",local
+79,Failed task 'task_validate_invalid': step 'validate access-token: 0' - 0,"  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 363, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 396, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 513, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 363, in task_validate_invalid
+    self.loop(access_token, self.task_validate_invalid)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 343, in loop
+    Helper.raise_task_assertion_error(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        task,
+        ^^^^^
+        f""validate access-token: {resp['status_code']}"",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        resp[""status_code""]
+        ^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 288, in raise_task_assertion_error
+    raise AssertionError(f""Failed task '{task.__name__}'{failed_step}"")
+",local
+926,Failed task 'task_validate_valid': step 'register init' - 0,"  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 363, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 396, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 513, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 351, in task_validate_valid
+    user_data = self.helper.register(self.task_validate_valid)
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 207, in register
+    Helper.raise_task_assertion_error(task, ""register init"", resp[""status_code""])
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 288, in raise_task_assertion_error
+    raise AssertionError(f""Failed task '{task.__name__}'{failed_step}"")
+",local
+221,Failed task 'task_wrong_password': step 'register accept' - 500,"  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 363, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 396, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 513, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 488, in task_wrong_password
+    user_data = self.helper.register_and_get_id(self.task_wrong_password)
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 266, in register_and_get_id
+    user_data: dict[str, int | str] = self.register(task, sleep_s)
+                                      ~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 212, in register
+    Helper.raise_task_assertion_error(task, ""register accept"", resp[""status_code""])
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 288, in raise_task_assertion_error
+    raise AssertionError(f""Failed task '{task.__name__}'{failed_step}"")
+",local
+178,Failed task 'task_validate_expired': step 'register init' - 0,"  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 363, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 396, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 513, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 356, in task_validate_expired
+    user_data = self.helper.register(self.task_validate_expired)
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 207, in register
+    Helper.raise_task_assertion_error(task, ""register init"", resp[""status_code""])
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 288, in raise_task_assertion_error
+    raise AssertionError(f""Failed task '{task.__name__}'{failed_step}"")
+",local
+209,Failed task 'task_wrong_user_id': step 'login init' - 500,"  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 363, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 396, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 513, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 461, in task_wrong_user_id
+    self.loop(
+    ~~~~~~~~~^
+        user_id=0,
+        ^^^^^^^^^^
+    ...<2 lines>...
+        allow_wrong_user_id=True,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 447, in loop
+    self.helper.login(
+    ~~~~~~~~~~~~~~~~~^
+        user_id,
+        ^^^^^^^^
+    ...<7 lines>...
+        allow_banned_user,
+        ^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 241, in login
+    Helper.raise_task_assertion_error(task, ""login init"", resp[""status_code""])
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 288, in raise_task_assertion_error
+    raise AssertionError(f""Failed task '{task.__name__}'{failed_step}"")
+",local
+73,Failed task 'task_refresh_invalid': step 'refresh access-token: 500' - 500,"  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 363, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 396, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 513, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 417, in task_refresh_invalid
+    self.loop(refresh_token, self.task_refresh_invalid)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 391, in loop
+    Helper.raise_task_assertion_error(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        task,
+        ^^^^^
+        f""refresh access-token: {resp['status_code']}"",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        resp[""status_code""]
+        ^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 288, in raise_task_assertion_error
+    raise AssertionError(f""Failed task '{task.__name__}'{failed_step}"")
+",local
+81,Failed task 'task_register': step 'register accept' - 500,"  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 363, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 396, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 513, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 318, in task_register
+    self.helper.register(self.task_register, sleep_s=1)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 212, in register
+    Helper.raise_task_assertion_error(task, ""register accept"", resp[""status_code""])
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 288, in raise_task_assertion_error
+    raise AssertionError(f""Failed task '{task.__name__}'{failed_step}"")
+",local
+84,Failed task 'task_register': step 'register init' - 0,"  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 363, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 396, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 513, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 318, in task_register
+    self.helper.register(self.task_register, sleep_s=1)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 207, in register
+    Helper.raise_task_assertion_error(task, ""register init"", resp[""status_code""])
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 288, in raise_task_assertion_error
+    raise AssertionError(f""Failed task '{task.__name__}'{failed_step}"")
+",local
+32,Failed task 'task_refresh_revoked': step 'register init' - 0,"  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 363, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 396, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 513, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 410, in task_refresh_revoked
+    user_data = self.helper.register(self.task_refresh_revoked)
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 207, in register
+    Helper.raise_task_assertion_error(task, ""register init"", resp[""status_code""])
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 288, in raise_task_assertion_error
+    raise AssertionError(f""Failed task '{task.__name__}'{failed_step}"")
+",local
+55,Failed task 'task_refresh_expired': step 'register init' - 0,"  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 363, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 396, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 513, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 404, in task_refresh_expired
+    user_data = self.helper.register(self.task_refresh_expired)
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 207, in register
+    Helper.raise_task_assertion_error(task, ""register init"", resp[""status_code""])
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 288, in raise_task_assertion_error
+    raise AssertionError(f""Failed task '{task.__name__}'{failed_step}"")
+",local
+35,Failed task 'task_refresh_revoked': step 'register accept' - 500,"  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 363, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 396, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 513, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 410, in task_refresh_revoked
+    user_data = self.helper.register(self.task_refresh_revoked)
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 212, in register
+    Helper.raise_task_assertion_error(task, ""register accept"", resp[""status_code""])
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 288, in raise_task_assertion_error
+    raise AssertionError(f""Failed task '{task.__name__}'{failed_step}"")
+",local
+56,Failed task 'task_wrong_otp': step 'login init' - 500,"  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 363, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 396, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 513, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 500, in task_wrong_otp
+    self.loop(
+    ~~~~~~~~~^
+        user_id=user_data[""user_id""],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        allow_banned_user=True,
+        ^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 447, in loop
+    self.helper.login(
+    ~~~~~~~~~~~~~~~~~^
+        user_id,
+        ^^^^^^^^
+    ...<7 lines>...
+        allow_banned_user,
+        ^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 241, in login
+    Helper.raise_task_assertion_error(task, ""login init"", resp[""status_code""])
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 288, in raise_task_assertion_error
+    raise AssertionError(f""Failed task '{task.__name__}'{failed_step}"")
+",local
+7,Failed task 'task_refresh_revoked': step 'refresh access-token: 500' - 500,"  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 363, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 396, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 513, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 412, in task_refresh_revoked
+    self.loop(user_data[""refresh_token""], self.task_refresh_revoked)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 391, in loop
+    Helper.raise_task_assertion_error(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        task,
+        ^^^^^
+        f""refresh access-token: {resp['status_code']}"",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        resp[""status_code""]
+        ^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 288, in raise_task_assertion_error
+    raise AssertionError(f""Failed task '{task.__name__}'{failed_step}"")
+",local
+3,Failed task 'task_refresh_revoked': step 'logout' - 500,"  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 363, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 396, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 513, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 411, in task_refresh_revoked
+    self.helper.logout(user_data[""refresh_token""], self.task_refresh_revoked)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 283, in logout
+    Helper.raise_task_assertion_error(task, ""logout"", user_data[""status_code""])
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 288, in raise_task_assertion_error
+    raise AssertionError(f""Failed task '{task.__name__}'{failed_step}"")
+",local
+23,Failed task 'task_wrong_otp': step 'login accept' - 500,"  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 363, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 396, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 513, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 500, in task_wrong_otp
+    self.loop(
+    ~~~~~~~~~^
+        user_id=user_data[""user_id""],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        allow_banned_user=True,
+        ^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 447, in loop
+    self.helper.login(
+    ~~~~~~~~~~~~~~~~~^
+        user_id,
+        ^^^^^^^^
+    ...<7 lines>...
+        allow_banned_user,
+        ^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 258, in login
+    Helper.raise_task_assertion_error(task, ""login accept"", resp[""status_code""])
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 288, in raise_task_assertion_error
+    raise AssertionError(f""Failed task '{task.__name__}'{failed_step}"")
+",local
+5,Failed task 'task_validate_valid': step 'validate access-token: 500' - 500,"  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 363, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 396, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 513, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 352, in task_validate_valid
+    self.loop(user_data[""access_token""], self.task_validate_valid)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 343, in loop
+    Helper.raise_task_assertion_error(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        task,
+        ^^^^^
+        f""validate access-token: {resp['status_code']}"",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        resp[""status_code""]
+        ^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 288, in raise_task_assertion_error
+    raise AssertionError(f""Failed task '{task.__name__}'{failed_step}"")
+",local
+7,Failed task 'task_refresh_valid': step 'refresh access-token: 500' - 500,"  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 363, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 396, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 513, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 400, in task_refresh_valid
+    self.loop(user_data[""refresh_token""], self.task_refresh_valid)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 391, in loop
+    Helper.raise_task_assertion_error(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        task,
+        ^^^^^
+        f""refresh access-token: {resp['status_code']}"",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        resp[""status_code""]
+        ^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 288, in raise_task_assertion_error
+    raise AssertionError(f""Failed task '{task.__name__}'{failed_step}"")
+",local
+11,Failed task 'task_refresh_expired': step 'refresh access-token: 500' - 500,"  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 363, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 396, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 513, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 406, in task_refresh_expired
+    self.loop(user_data[""refresh_token""], self.task_refresh_expired)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 391, in loop
+    Helper.raise_task_assertion_error(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        task,
+        ^^^^^
+        f""refresh access-token: {resp['status_code']}"",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        resp[""status_code""]
+        ^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 288, in raise_task_assertion_error
+    raise AssertionError(f""Failed task '{task.__name__}'{failed_step}"")
+",local
+7,Failed task 'task_banned_user': step 'login accept' - 500,"  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 363, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 396, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 513, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 478, in task_banned_user
+    self.loop(
+    ~~~~~~~~~^
+        user_id=user_data[""user_id""],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        allow_banned_user=True,
+        ^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 447, in loop
+    self.helper.login(
+    ~~~~~~~~~~~~~~~~~^
+        user_id,
+        ^^^^^^^^
+    ...<7 lines>...
+        allow_banned_user,
+        ^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 258, in login
+    Helper.raise_task_assertion_error(task, ""login accept"", resp[""status_code""])
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 288, in raise_task_assertion_error
+    raise AssertionError(f""Failed task '{task.__name__}'{failed_step}"")
+",local
+20,Failed task 'task_banned_user': step 'login init' - 0,"  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 363, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 396, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\.venv\Lib\site-packages\locust\user\task.py"", line 513, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 478, in task_banned_user
+    self.loop(
+    ~~~~~~~~~^
+        user_id=user_data[""user_id""],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        allow_banned_user=True,
+        ^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 447, in loop
+    self.helper.login(
+    ~~~~~~~~~~~~~~~~~^
+        user_id,
+        ^^^^^^^^
+    ...<7 lines>...
+        allow_banned_user,
+        ^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 241, in login
+    Helper.raise_task_assertion_error(task, ""login init"", resp[""status_code""])
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Inst\4_course\8_sem_2\NIR\server\app\tests\locust\locustfile.py"", line 288, in raise_task_assertion_error
+    raise AssertionError(f""Failed task '{task.__name__}'{failed_step}"")
+",local
