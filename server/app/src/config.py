@@ -33,6 +33,9 @@ class Settings:
         self.DB_PORT: int = int(os.getenv("DB_PORT"))
         self.DB_USER: str = os.getenv("DB_USER")
         self.DB_NAME: str = os.getenv("DB_NAME")
+        self.DB_POOL_SIZE: int = int(os.getenv("DB_POOL_SIZE"))
+        self.DB_MAX_OVERFLOW: int = int(os.getenv("DB_MAX_OVERFLOW"))
+        self.DB_MAX_CONNECTIONS: int = int(os.getenv("DB_MAX_CONNECTIONS"))
 
         # Сервер
         self.SERVER_PORT: int = int(os.getenv("SERVER_PORT"))
@@ -60,6 +63,7 @@ class Settings:
         self.REDIS_MAX_CONNECTIONS: int = int(os.getenv("REDIS_MAX_CONNECTIONS"))
         self.REDIS_SOCKET_TIMEOUT: int = int(os.getenv("REDIS_SOCKET_TIMEOUT"))
         self.REDIS_SOCKET_CONNECT_TIMEOUT: int = int(os.getenv("REDIS_SOCKET_CONNECT_TIMEOUT"))
+        self.REDIS_POOL_TIMEOUT: int = int(os.getenv("REDIS_POOL_TIMEOUT"))
         self.REDIS_CACHE_EXPIRE_MINUTES: int = int(os.getenv("REDIS_CACHE_EXPIRE_MINUTES"))
 
     @property

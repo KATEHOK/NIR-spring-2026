@@ -5,7 +5,7 @@ from src.config import settings
 redis_pool = redis.BlockingConnectionPool.from_url(
     settings.REDIS_URL,
     max_connections=settings.REDIS_MAX_CONNECTIONS,
-    timeout=5,
+    timeout=settings.REDIS_POOL_TIMEOUT,
     socket_timeout=settings.REDIS_SOCKET_TIMEOUT,
     socket_connect_timeout=settings.REDIS_SOCKET_CONNECT_TIMEOUT,
     retry_on_timeout=True,
