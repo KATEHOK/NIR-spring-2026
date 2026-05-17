@@ -1,0 +1,3 @@
+Method,Name,Error,Occurrences
+POST,/auth/register-init,CatchResponseError('Register init failed: 0'),2
+POST,/auth/register-accept,CatchResponseError('Register accept failed: 500'),4

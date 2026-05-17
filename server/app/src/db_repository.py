@@ -13,11 +13,16 @@ class AsyncAuthRepo:
         return result.scalar()
 
     @staticmethod
-    async def revoke_refresh_token(token: str, session: AsyncSession) -> bool:
+    async def revoke_refresh_token(token: str, session: AsyncSession) -> int | None:
         """Отзывает refresh-токен"""
-        stmt = update(RefreshTokenModel).where(RefreshTokenModel.token == token).values(revoked=True)
+        stmt = (
+            update(RefreshTokenModel)
+            .where(RefreshTokenModel.token == token)
+            .values(revoked=True)
+            .returning(RefreshTokenModel.id)
+        )
         result = await session.execute(stmt)
-        return result.rowcount > 0 # noqa
+        return result.scalar_one_or_none()
 
     @staticmethod
     async def select_user(user_id: int, session: AsyncSession) -> UserModel | None:
@@ -45,51 +50,26 @@ class AsyncAuthRepo:
     async def add_refresh_token(
             user_id: int,
             token: str,
-            accepted: bool,
             expires_at: datetime,
             session: AsyncSession
     ) -> RefreshTokenModel:
-        """Создает неподтвержденный refresh-токен (выполняет flush)"""
+        """Создает refresh-токен (выполняет flush)"""
         refresh_token = RefreshTokenModel(
             user_id=user_id,
             token=token,
             expires_at=expires_at,
-            accepted=accepted
         )
         session.add(refresh_token)
         await session.flush([refresh_token])
         return refresh_token
 
     @staticmethod
-    async def increment_user_faults(
-            user_id: int,
-            last_fault_at: datetime,
-            challenge: bytes,
-            session: AsyncSession
-    ) -> None:
-        """Инкрементирует счетчик ошибок и обновляет параметры последней ошибки при входе пользователя"""
+    async def increment_user_login_count(user_id: int, session: AsyncSession) -> None:
+        """Инкриминирует счетчик успеха"""
         await session.execute(
             update(UserModel)
             .where(UserModel.id == user_id)
-            .values(
-                failed_login_count=UserModel.failed_login_count + 1,
-                last_fault_at=last_fault_at,
-                challenge=challenge
-            )
-        )
-        return None
-
-    @staticmethod
-    async def update_user_successful_logged_in(user_id: int, session: AsyncSession) -> None:
-        """Инкрементирует счетчик успеха, сбрасывает challenge и счетчик неудач при успешном входе пользователя"""
-        await session.execute(
-            update(UserModel)
-            .where(UserModel.id == user_id)
-            .values(
-                login_count=UserModel.login_count + 1,
-                failed_login_count=0,
-                challenge=None
-            )
+            .values(login_count=UserModel.login_count + 1)
         )
         return None
 

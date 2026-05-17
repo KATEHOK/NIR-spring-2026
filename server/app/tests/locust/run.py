@@ -11,8 +11,8 @@ if __name__ == "__main__":
     csv_dir = f"{results_dir}/csv"
     html_dir = f"{results_dir}/html"
     sleep_s = 60
-    users_start = 640
-    users_stop = 800 + 1
+    users_start = 840
+    users_stop = 1200 + 1
     users_step = 40
     host = "http://localhost:8000"
     spawn_rate = "100"

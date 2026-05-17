@@ -8,12 +8,13 @@ from locust.clients import HttpSession
 
 BASE_URL = "http://localhost:8000"
 WAIT_TIME = between(0.5, 1)
+SESSION_EXPIRE_SECONDS = int(os.getenv("SESSION_EXPIRE_MINUTES")) * 60
 REFRESH_TOKEN_EXPIRE_SECONDS = int(os.getenv("REFRESH_TOKEN_EXPIRE_MINUTES")) * 60
 JWT_EXPIRE_SECONDS = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES")) * 60
 JWT_VALIDATE_ITERATIONS = 10
 JWT_REFRESH_ITERATIONS = 10
 LOGIN_ITERATIONS = 10
-LOGIN_FAULT_LIMIT = int(os.getenv("FAULT_LIMIT"))
+LOGIN_FAULTS_LIMIT = int(os.getenv("FAULTS_LIMIT"))
 
 
 class Helper:
@@ -38,7 +39,7 @@ class Helper:
                 return {
                     "status_code": resp.status_code,
                     "password": password,
-                    "refresh_token": resp.json().get("refresh_token")
+                    "session_id": resp.json().get("session_id")
                 }
             else:
                 if prevent_failure:
@@ -51,13 +52,13 @@ class Helper:
 
     def register_accept_req(
             self,
-            refresh_token: str,
+            session_id: str,
             prevent_failure: bool = False,
             prevent_statuses_failure: tuple[int, ...] = (),
     ) -> dict[str, int | str]:
         with self.client.post(
             "/auth/register-accept",
-            json={"refresh_token": refresh_token},
+            json={"session_id": session_id},
             catch_response=True
         ) as resp:
             if resp.status_code == 201:
@@ -92,7 +93,7 @@ class Helper:
                 resp.success()
                 return {
                     "status_code": resp.status_code,
-                    "refresh_token": resp.json().get("refresh_token"),
+                    "session_id": resp.json().get("session_id"),
                     "challenge": resp.json().get("challenge"),
                 }
             else:
@@ -106,14 +107,14 @@ class Helper:
 
     def login_accept_req(
             self,
-            refresh_token: str,
+            session_id: str,
             otp: str,
             prevent_failure: bool = False,
             prevent_statuses_failure: tuple[int, ...] = (),
     ) -> dict[str, int | str]:
         with self.client.post(
             "/auth/login-accept",
-            json={"refresh_token": refresh_token, "otp": otp},
+            json={"session_id": session_id, "otp": otp},
             catch_response=True
         ) as resp:
             if resp.status_code == 200:
@@ -206,7 +207,7 @@ class Helper:
             Helper.raise_task_assertion_error(task, "register init", resp["status_code"])
         if sleep_s is not None:
             time.sleep(sleep_s)
-        resp = self.register_accept_req(resp["refresh_token"])
+        resp = self.register_accept_req(resp["session_id"])
         if resp["status_code"] != 201:
             Helper.raise_task_assertion_error(task, "register accept", resp["status_code"])
         return {
@@ -247,7 +248,7 @@ class Helper:
         if prevent_wrong_otp_failure:
             allowed_failures.append(401)
         resp = self.login_accept_req(
-            resp["refresh_token"],
+            resp["session_id"],
             self.make_fake_otp(),
             prevent_failure,
             tuple(allowed_failures)
@@ -471,7 +472,7 @@ class LoginUser(HttpUser):
             user_id=user_data["user_id"],
             password=user_data['password'],
             task=self.task_banned_user,
-            iterations=LOGIN_FAULT_LIMIT + 1,
+            iterations=LOGIN_FAULTS_LIMIT + 1,
             prevent_failure=True,
         )
         self.loop(

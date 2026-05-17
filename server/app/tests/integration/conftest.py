@@ -12,9 +12,7 @@ BASE_URL = "http://localhost:8000"
 LABEL = os.getenv("SERVER_IMAGE_TAG")
 CSV_FILE = f"tests/integration/results_api_integrations-{LABEL}.csv"
 
-# ---------------------------------------------------------------------------
-# Хелперы
-# ---------------------------------------------------------------------------
+
 def generate_pin_code() -> str:
     """Генерирует 8-символьный Base64 URL-safe без padding, как в Android-приложении."""
     random_bytes = secrets.token_bytes(6)  # 6 байт -> 8 символов Base64
@@ -36,9 +34,7 @@ def decode_access_token_without_verify(token: str) -> dict:
     """Декодирует access-токен без проверки подписи для извлечения payload."""
     return jwt.decode(token, options={"verify_signature": False})
 
-# ---------------------------------------------------------------------------
-# Фикстуры
-# ---------------------------------------------------------------------------
+
 @pytest.fixture(scope="session")
 def client():
     """HTTP-клиент с базовым URL."""
@@ -56,7 +52,7 @@ def register_init(client):
     return {
         "pin_code": pin_code,
         "password": password,
-        "init_refresh_token": data["refresh_token"],
+        "session_id": data["session_id"],
         "key_part": data["key_part"],
         "elapsed_time_ms": resp.elapsed.total_seconds() * 1000,
     }
@@ -64,14 +60,14 @@ def register_init(client):
 @pytest.fixture(scope="function")
 def register_accept(client, register_init):
     """Подтверждение регистрации. Возвращает токены + elapsed_time_ms."""
-    resp = client.post("/auth/register-accept", json={"refresh_token": register_init["init_refresh_token"]})
+    resp = client.post("/auth/register-accept", json={"session_id": register_init["session_id"]})
     assert resp.status_code == 201, f"Register accept failed: {resp.text}"
     data = resp.json()
     payload = decode_access_token_without_verify(data["access_token"])
     return {
         "user_id": int(payload["sub"]),
         "access_token": data["access_token"],
-        "accept_refresh_token": data["refresh_token"],
+        "refresh_token": data["refresh_token"],
         "elapsed_time_ms": resp.elapsed.total_seconds() * 1000,
     }
 

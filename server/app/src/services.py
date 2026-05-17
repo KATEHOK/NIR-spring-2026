@@ -1,18 +1,20 @@
 import base64
 import logging
-from datetime import timedelta
+from datetime import datetime
 from fastapi import HTTPException, status
+from redis.asyncio import Redis
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.config import settings
 from src.crypt import Password, JWT, SymmetricEncryption, Random
 from src.utils import datetime_utcnow, timestamp_utcnow
-from src.repository import AsyncAuthRepo
+from src.db_repository import AsyncAuthRepo as DBRepo
+from src.redis_repository import AsyncAuthRepo as RedisRepo
 from src.schemas import RefreshSchema, RegisterSchemas, LoginSchemas
 from src.models import RefreshTokenModel, UserModel
 
 
-logger = logging.getLogger("auth_server")
+logger = logging.getLogger(settings.LOGGER_NAME)
 
 
 class SystemService:
@@ -26,7 +28,7 @@ class SystemService:
     @staticmethod
     async def touch_db(session: AsyncSession):
         """Приветственное сообщение из БД"""
-        return {"msg": await AsyncAuthRepo.select_hello(session)}
+        return {"msg": await DBRepo.select_hello(session)}
 
     @staticmethod
     async def get_public_key():
@@ -45,34 +47,35 @@ class RegisterService:
         return key_part, SymmetricEncryption.encrypt(key)
 
     @staticmethod
-    async def init(pin_code: str, password: str, session: AsyncSession) -> RegisterSchemas.Init.Resp:
+    async def init(pin_code: str, password: str, redis: Redis) -> RegisterSchemas.Init.Resp:
         """Инициализация регистрации пользователя"""
         hashed_password = await Password.async_hash(password)
-        key_part, key = await RegisterService.issue_key(pin_code)
-        user = await AsyncAuthRepo.add_user(hashed_password, key, session)
-        token = await TokenService.set_refresh_token(user.id, accepted=False, fast=True, session=session)
-        await session.commit()
-        return RegisterSchemas.Init.Resp(refresh_token=token.token, key_part=key_part)
+        key_part, encrypted_key = await RegisterService.issue_key(pin_code)
+        session_id = Random.session_id()
+        await RedisRepo.create_register_session(session_id, hashed_password, encrypted_key, redis)
+        return RegisterSchemas.Init.Resp(session_id=session_id, key_part=key_part)
 
     @staticmethod
-    async def accept(refresh_token: str, session: AsyncSession) -> RegisterSchemas.Accept.Resp:
+    async def accept(session_id: str, session: AsyncSession, redis: Redis) -> RegisterSchemas.Accept.Resp:
         """Подтверждение регистрации"""
-        old_token: RefreshTokenModel = await AsyncAuthRepo.select_refresh_token(refresh_token, session)
-        await TokenService.validate_refresh(
-            old_token,
-            require_not_expired=True,
-            require_not_accepted=True,
-            require_not_revoked=True
-        )
-        old_token.revoked = True
-        user: UserModel = await AsyncAuthRepo.select_user(old_token.user_id, session)
-        await UserService.validate(user, require_not_active=True)
-        user.is_active = True
-        new_token = await TokenService.set_refresh_token(user.id, accepted=True, fast=False, session=session)
+        saved_data = await RedisRepo.get_register_session(session_id, redis)
+        if saved_data is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Unknown session id (maybe expired)")
+        await RedisRepo.delete_register_session(session_id, redis)
+        user = await DBRepo.add_user(saved_data["password"], saved_data["key"], session)
+        refresh_token = await TokenService.set_refresh_token(user.id, session=session)
         await session.commit()
+        await RedisRepo.cache_refresh_token(
+            token=refresh_token.token,
+            token_id=refresh_token.id,
+            user_id=refresh_token.user_id,
+            revoked=refresh_token.revoked,
+            expires_at=refresh_token.expires_at,
+            redis=redis
+        )
         return RegisterSchemas.Accept.Resp(
-            refresh_token=new_token.token,
-            access_token=JWT.issue_access_token(new_token.user_id, new_token.id),
+            refresh_token=refresh_token.token,
+            access_token=JWT.issue_access_token(user.id, refresh_token.id),
         )
 
 
@@ -80,146 +83,92 @@ class LoginService:
     """Бизнес-логика входа пользователя"""
 
     @staticmethod
-    async def issue_and_set_challenge(user: UserModel) -> bytes:
+    async def issue_challenge(encrypted_user_key: bytes) -> tuple[bytes, bytes]:
         """
-        Выпускает challenge и вставляет его в БД (в зашифрованном на ключе приложения виде):
+        Выпускает и зашифровывает challenge (вернет - (на ключе пользователя, на ключе приложения)):
         challenge = {challenge_random}:{timestamp_utcnow}
         """
         plain_challenge = f"{Random.urlsafe(16)}:{int(timestamp_utcnow())}".encode('utf-8')
-        user.challenge = SymmetricEncryption.encrypt(plain_challenge)
-        plain_key = SymmetricEncryption.decrypt(user.key)
-        return SymmetricEncryption.encrypt(plain_challenge, plain_key)
+        return (
+            SymmetricEncryption.encrypt(plain_challenge, SymmetricEncryption.decrypt(encrypted_user_key)),
+            SymmetricEncryption.encrypt(plain_challenge)
+        )
 
     @staticmethod
-    async def verify_otp(user: UserModel, otp: bytes, session: AsyncSession):
+    async def verify_otp(user: UserModel, encrypted_challenge: bytes, encrypted_otp: str) -> bool:
         """
-        Проверяет OTP (вызывает функцию, коммититящую и выбрасывающую HTTP-исключения):
-        otp = {challenge_random}:{login_count}
+        Проверяет OTP: otp = {challenge_random}:{login_count}
         """
         try:
-            key = SymmetricEncryption.decrypt(user.key)
-            plain_otp = SymmetricEncryption.decrypt(otp, key).decode('utf-8')
-            if ":" not in plain_otp:
+            user_key = SymmetricEncryption.decrypt(user.key)
+            otp = SymmetricEncryption.decrypt(base64.b64decode(encrypted_otp), user_key).decode('utf-8')
+            if ":" not in otp:
                 raise ValueError("Invalid OTP format")
-            i = plain_otp.index(":")
-            login_count = plain_otp[i+1:]
+            i = otp.index(":")
+            login_count = otp[i+1:]
             if not login_count.isdigit():
                 raise ValueError("Invalid login count")
             if int(login_count) != user.login_count:
                 raise ValueError("Login count mismatch")
-            challenge = SymmetricEncryption.decrypt(user.challenge).decode('utf-8')
-            if plain_otp[:i] != challenge[:challenge.index(":")]:
+            challenge = SymmetricEncryption.decrypt(encrypted_challenge).decode('utf-8')
+            if otp[:i] != challenge[:challenge.index(":")]:
                 raise ValueError("Challenge mismatch")
+            return True
         except (ValueError, Exception) as e:
-            await LoginService.handle_incorrect_otp(user, str(e), session)
+            logger.info(f"Incorrect OTP for user_id={user.id}: {e}")
+            return False
 
     @staticmethod
-    async def handle_incorrect_otp(user: UserModel, detail: str, session: AsyncSession):
-        """Обрабатывает ситуацию некорректного OTP (коммитит измененное число попыток)"""
-        logger.info(f"Incorrect OTP for user_id={user.id}: {detail}")
-        await AsyncAuthRepo.increment_user_faults(
-            user_id=user.id,
-            last_fault_at=datetime_utcnow(),
-            challenge=None if user.failed_login_count + 1 >= settings.FAULT_LIMIT else user.challenge,
-            session=session
-        )
-        await session.commit()
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Incorrect OTP")
-
-    @staticmethod
-    async def init(user_id: int, password: str, session: AsyncSession) -> LoginSchemas.Init.Resp:
+    async def init(user_id: int, password: str, session: AsyncSession, redis: Redis) -> LoginSchemas.Init.Resp:
         """Инициализирует вход пользователя"""
-        user: UserModel = await AsyncAuthRepo.select_user(user_id, session)
-        await UserService.validate(
-            user,
-            require_active=True,
-            require_not_banned=True,
-            session=session,
-            password=password
-        )
-        challenge = await LoginService.issue_and_set_challenge(user)
-        token = await TokenService.set_refresh_token(user.id, accepted=False, fast=True, session=session)
-        await session.commit()
-        return LoginSchemas.Init.Resp(
-            refresh_token=token.token,
-            challenge=base64.b64encode(challenge).decode('utf-8')
-        )
-
-    @staticmethod
-    async def accept(refresh_token: str, otp: str, session: AsyncSession) -> LoginSchemas.Accept.Resp:
-        old_token: RefreshTokenModel = await AsyncAuthRepo.select_refresh_token(refresh_token, session)
-        await TokenService.validate_refresh(
-            old_token,
-            require_not_expired=True,
-            require_not_accepted=True,
-            require_not_revoked=True
-        )
-        user: UserModel = await AsyncAuthRepo.select_user(old_token.user_id, session)
-        await UserService.validate(
-            user,
-            require_active=True,
-            require_challenge=True,
-            require_not_banned=True,
-            session=session
-        )
-        await LoginService.verify_otp(user, base64.b64decode(otp), session)
-        new_refresh = await TokenService.set_refresh_token(user.id, accepted=True, fast=False, session=session)
-        new_access = JWT.issue_access_token(new_refresh.user_id, new_refresh.id)
-        old_token.revoked = True
-        await AsyncAuthRepo.update_user_successful_logged_in(user.id, session)
-        await session.commit()
-        return LoginSchemas.Accept.Resp(
-            refresh_token=new_refresh.token,
-            access_token=new_access,
-        )
-
-
-class UserService:
-    """Бизнес-логика работы с пользователем"""
-
-    @staticmethod
-    async def is_banned(user: UserModel, session: AsyncSession = None) -> bool:
-        """Проверяет: в бане ли пользователь, при необходимости сбрасывает счетчик ошибок"""
-        if user.last_fault_at is None:
-            return False
-        fault_update_exp = user.last_fault_at + timedelta(minutes=settings.FAULT_LIMIT_UPDATE_PERIOD)
-        ban_exp = user.last_fault_at + timedelta(minutes=settings.BAN_PERIOD)
-        utcnow = datetime_utcnow()
-        too_much_fault = user.failed_login_count >= settings.FAULT_LIMIT
-        if (
-            not too_much_fault and utcnow > fault_update_exp or
-            too_much_fault and utcnow > ban_exp
-        ):
-            if session is None:
-                raise RuntimeError("Session required for update login faults in ban check")
-            user.failed_login_count = 0
-            await session.commit()
-            return False
-        return too_much_fault
-
-    @staticmethod
-    async def validate(
-            user: UserModel = None,
-            require_active: bool = False,
-            require_not_active: bool = False,
-            require_challenge: bool = False,
-            require_not_banned: bool = False,
-            session: AsyncSession = None,
-            password: str | None = None,
-    ):
-        """Валидирует пользователя (выбрасывает HTTP-исключения"""
+        user: UserModel = await DBRepo.select_user(user_id, session)
         if user is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-        if password is not None and not await Password.async_verify(password, user.password):
+        if not await Password.async_verify(password, user.password):
+            faults = await RedisRepo.incr_user_faults(user_id, redis)
+            if faults >= settings.FAULTS_LIMIT:
+                await RedisRepo.ban_user(user_id, redis)
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect password")
-        if require_not_banned and await UserService.is_banned(user, session):
+        if await RedisRepo.is_user_baned(user.id, redis):
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Banned user")
-        if require_active and not user.is_active:
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Inactive user")
-        if require_not_active and user.is_active:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Active user")
-        if require_challenge and user.challenge is None:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Challenge not set")
+        session_id = Random.session_id()
+        user_challenge, app_challenge = await LoginService.issue_challenge(user.key)
+        await RedisRepo.create_login_session(session_id, user_id, app_challenge, redis)
+        return LoginSchemas.Init.Resp(
+            session_id=session_id,
+            challenge=base64.b64encode(user_challenge).decode('utf-8')
+        )
+
+    @staticmethod
+    async def accept(session_id: str, otp: str, session: AsyncSession, redis: Redis) -> LoginSchemas.Accept.Resp:
+        saved_data = await RedisRepo.get_login_session(session_id, redis)
+        if saved_data is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Unknown session id (maybe expired)")
+        await RedisRepo.delete_login_session(session_id, redis)
+        user: UserModel = await DBRepo.select_user(saved_data["user_id"], session)
+        if user is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+        if not await LoginService.verify_otp(user, saved_data["challenge"], otp):
+            faults = await RedisRepo.incr_user_faults(user.id, redis)
+            if faults >= settings.FAULTS_LIMIT:
+                await RedisRepo.ban_user(user.id, redis)
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Incorrect OTP")
+        await RedisRepo.delete_user_faults(user.id, redis)
+        refresh_token = await TokenService.set_refresh_token(user.id, session)
+        await DBRepo.increment_user_login_count(user.id, session)
+        await session.commit()
+        await RedisRepo.cache_refresh_token(
+            token=refresh_token.token,
+            token_id=refresh_token.id,
+            user_id=refresh_token.user_id,
+            revoked=refresh_token.revoked,
+            expires_at=refresh_token.expires_at,
+            redis=redis
+        )
+        return LoginSchemas.Accept.Resp(
+            refresh_token=refresh_token.token,
+            access_token=JWT.issue_access_token(user.id, refresh_token.id),
+        )
 
 
 class TokenService:
@@ -227,66 +176,70 @@ class TokenService:
 
     @staticmethod
     async def validate_refresh(
-            token: RefreshTokenModel = None,
-            require_expired: bool = False,
+            token: RefreshTokenModel | dict[str, int | str | bool | datetime] = None,
             require_not_expired: bool = False,
-            require_accepted: bool = False,
-            require_not_accepted: bool = False,
-            require_revoked: bool = False,
             require_not_revoked: bool = False,
     ):
         """Валидирует refresh-токен (выбрасывает HTTP-исключения)"""
         utcnow = datetime_utcnow()
         if token is None:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
-        if require_expired and utcnow < token.expires_at:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Token not expired")
-        if require_not_expired and utcnow >= token.expires_at:
+        if isinstance(token, RefreshTokenModel):
+            token = {
+                "revoked": token.revoked,
+                "expires_at": token.expires_at,
+            }
+        if require_not_expired and utcnow >= token["expires_at"]:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token expired")
-        if require_revoked and not token.revoked:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Token not revoked")
-        if require_not_revoked and token.revoked:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token already revoked")
-        if require_accepted and not token.accepted:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token not accepted")
-        if require_not_accepted and token.accepted:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Token already accepted")
+        if require_not_revoked and token["revoked"]:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token revoked")
 
     @staticmethod
-    async def set_refresh_token(user_id: int, accepted: bool, fast: bool, session: AsyncSession) -> RefreshTokenModel:
+    async def set_refresh_token(user_id: int, session: AsyncSession) -> RefreshTokenModel:
         """Выпускает и добавляет в БД новый refresh-токен, обрабатывая нарушение уникальности (не выполняет коммит)"""
-        refresh_token, refresh_token_exp = JWT.issue_refresh_token(fast)
+        refresh_token, refresh_token_exp = JWT.issue_refresh_token()
         try:
-            new_token = await AsyncAuthRepo.add_refresh_token(
+            return await DBRepo.add_refresh_token(
                 user_id=user_id,
                 token=refresh_token,
-                accepted=accepted,
                 expires_at=refresh_token_exp,
                 session=session
             )
-            return new_token
         except IntegrityError:
             raise HTTPException(status_code=500, detail="Impossible! Failed to generate unique refresh token")
 
     @staticmethod
-    async def refresh(refresh_token: str, session: AsyncSession) -> RefreshSchema.Resp:
+    async def refresh(refresh_token: str, session: AsyncSession, redis: Redis) -> RefreshSchema.Resp:
         """Обновление токенов (пока что только access)"""
-        token: RefreshTokenModel = await AsyncAuthRepo.select_refresh_token(refresh_token, session)
+        token = await RedisRepo.get_cached_refresh_token(refresh_token, redis)
+        if token is None:
+            token = await DBRepo.select_refresh_token(refresh_token, session)
+            if token is None:
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+            token = {
+                "token_id": token.id,
+                "user_id": token.user_id,
+                "revoked": token.revoked,
+                "expires_at": token.expires_at,
+            }
+            await RedisRepo.cache_refresh_token(token=refresh_token, redis=redis, **token)
         await TokenService.validate_refresh(
             token=token,
             require_not_expired=True,
-            require_accepted=True,
             require_not_revoked=True
         )
         return RefreshSchema.Resp(
-            refresh_token=token.token,
-            access_token=JWT.issue_access_token(token.user_id, token.id),
+            refresh_token=refresh_token,
+            access_token=JWT.issue_access_token(token["user_id"], token["token_id"]),
         )
 
     @staticmethod
-    async def logout(refresh_token: str, session: AsyncSession) -> None:
+    async def logout(refresh_token: str, session: AsyncSession, redis: Redis) -> None:
         """Выход пользователя"""
-        await AsyncAuthRepo.revoke_refresh_token(refresh_token, session)
+        revoked_token_id = await DBRepo.revoke_refresh_token(refresh_token, session)
+        if revoked_token_id is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Unknown token")
         await session.commit()
+        await RedisRepo.delete_cached_refresh_token(refresh_token, redis)
+        await RedisRepo.add_refresh_token_to_blacklist(revoked_token_id, redis)
         return None
-
